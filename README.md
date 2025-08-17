@@ -47,7 +47,7 @@ npm run build
 ```
 todo-app/
 ├── app/                    # App Router de Next.js
-├── components/            
+├── components/
 │   ├── layouts/           # Componentes de layout
 │   ├── todo/              # Componentes específicos de tareas
 │   └── ui/                # Componentes UI de shadcn
