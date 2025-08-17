@@ -50,6 +50,10 @@ npm install
 
 # Configurar variables de entorno
 cp .env.example .env.local
+# Edita .env.local con tus credenciales de Firebase
+
+# Configurar variables de entorno
+cp .env.example .env.local
 # Editar .env.local con tus credenciales de Firebase
 ```
 
@@ -178,6 +182,48 @@ firebase deploy
 - [ ] Tema personalizable
 - [ ] Exportar/Importar tareas
 - [ ] Colaboración en tareas
+
+## 🌐 Despliegue
+
+### Deploy en Vercel (Recomendado)
+
+1. **Conecta tu repositorio a Vercel:**
+   - Ve a [vercel.com](https://vercel.com)
+   - Conecta tu cuenta de GitHub
+   - Importa el repositorio `NextToDo`
+
+2. **Configura las variables de entorno en Vercel:**
+   - En el dashboard de Vercel, ve a tu proyecto
+   - Settings → Environment Variables
+   - Agrega todas las variables de `.env.local`:
+     ```
+     NEXT_PUBLIC_FIREBASE_API_KEY
+     NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+     NEXT_PUBLIC_FIREBASE_PROJECT_ID
+     NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+     NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+     NEXT_PUBLIC_FIREBASE_APP_ID
+     NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+     ```
+
+3. **Autoriza el dominio en Firebase:**
+   - Ve a Firebase Console → Authentication → Settings
+   - En "Authorized domains", agrega tu dominio de Vercel
+   - Ejemplo: `tu-app.vercel.app`
+
+4. **Deploy automático:**
+   - Vercel desplegará automáticamente en cada push a main
+   - El build toma aproximadamente 1-2 minutos
+
+### Deploy manual
+
+```bash
+# Construir para producción
+npm run build
+
+# Servir localmente
+npm start
+```
 
 ## 🤝 Contribuir
 
