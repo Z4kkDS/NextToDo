@@ -1,5 +1,6 @@
 export interface Todo {
   id: string;
+  userId: string;
   text: string;
   description?: string;
   completed: boolean;
@@ -34,4 +35,5 @@ export interface TodoContextType {
   updateTodo: (id: string, todo: Partial<UpdateTodoInput>) => void;
   filter: TodoFilter;
   setFilter: (filter: TodoFilter) => void;
+  loading: boolean;
 }
