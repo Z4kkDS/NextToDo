@@ -1,54 +1,71 @@
 "use client";
 
+import { TodoService } from "@/lib/todoService";
 import { NewTodoInput, Todo, TodoContextType, TodoFilter, UpdateTodoInput } from "@/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const TodoContext = createContext<TodoContextType | undefined>(undefined);
 
 export function TodoProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<TodoFilter>("all");
+  const [loading, setLoading] = useState(false);
+  const { user } = useAuth();
 
-  // Cargar todos del localStorage al inicio
+  // Cargar todos del usuario cuando se autentique
   useEffect(() => {
-    const savedTodos = localStorage.getItem("todos");
-    if (savedTodos) {
-      setTodos(JSON.parse(savedTodos));
+    if (!user) {
+      setTodos([]);
+      return;
     }
-  }, []);
 
-  // Guardar todos en localStorage cuando cambien
-  useEffect(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
+    setLoading(true);
+    // Suscribirse a cambios en tiempo real
+    const unsubscribe = TodoService.subscribeToUserTodos(user.uid, (userTodos) => {
+      setTodos(userTodos);
+      setLoading(false);
+    });
 
-  const addTodo = (todoInput: NewTodoInput) => {
-    const newTodo: Todo = {
-      id: crypto.randomUUID(),
-      ...todoInput,
-      completed: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setTodos((prev) => [...prev, newTodo]);
+    return () => unsubscribe();
+  }, [user]);
+
+  const addTodo = async (todoInput: NewTodoInput) => {
+    if (!user) return;
+
+    try {
+      await TodoService.createTodo(user.uid, todoInput);
+      // No necesitamos actualizar el estado local porque la suscripción se encarga
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
   };
 
-  const toggleTodo = (id: string) => {
-    setTodos((prev) =>
-      prev.map((todo) =>
-        todo.id === id ? { ...todo, completed: !todo.completed, updatedAt: new Date() } : todo
-      )
-    );
+  const toggleTodo = async (id: string) => {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+
+    try {
+      await TodoService.toggleTodo(id, !todo.completed);
+    } catch (error) {
+      console.error("Error toggling todo:", error);
+    }
   };
 
-  const deleteTodo = (id: string) => {
-    setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  const deleteTodo = async (id: string) => {
+    try {
+      await TodoService.deleteTodo(id);
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
   };
 
-  const updateTodo = (id: string, todoInput: Partial<UpdateTodoInput>) => {
-    setTodos((prev) =>
-      prev.map((todo) => (todo.id === id ? { ...todo, ...todoInput, updatedAt: new Date() } : todo))
-    );
+  const updateTodo = async (id: string, todoInput: Partial<UpdateTodoInput>) => {
+    try {
+      await TodoService.updateTodo(id, todoInput);
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
   };
 
   return (
@@ -61,6 +78,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         updateTodo,
         filter,
         setFilter,
+        loading,
       }}
     >
       {children}
