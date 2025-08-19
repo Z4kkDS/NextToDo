@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { CheckSquare, Loader2 } from "lucide-react";
@@ -10,7 +11,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
   const { signInWithGoogle, loading } = useAuth();
 
   return (
-    <div className={cn("flex flex-col gap-6 w-full max-w-md", className)} {...props}>
+    <div className={cn("flex flex-col gap-6 w-full max-w-md relative", className)} {...props}>
+      {/* Theme Toggle */}
+      <div className="absolute top-0 right-0 z-10">
+        <ThemeToggle />
+      </div>
+      
       {/* Logo de la aplicación */}
       <div className="text-center space-y-4">
         <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto">

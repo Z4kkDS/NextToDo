@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/context/AuthContext";
 import { LogOut, User } from "lucide-react";
 import Image from "next/image";
@@ -23,7 +24,9 @@ export function UserHeader() {
         <h1 className="text-2xl font-bold">NexToDo</h1>
       </div>
 
-      <DropdownMenu>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="relative h-10 w-10 rounded-full">
             {user.photoURL && user.photoURL.trim() ? (
@@ -53,7 +56,8 @@ export function UserHeader() {
             Cerrar sesión
           </DropdownMenuItem>
         </DropdownMenuContent>
-      </DropdownMenu>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
