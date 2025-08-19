@@ -10,11 +10,11 @@ export class LocalTodoService {
       if (!stored) return [];
 
       const todos = JSON.parse(stored);
-      return todos.map((todo: any) => ({
+      return todos.map((todo: Record<string, unknown>) => ({
         ...todo,
-        createdAt: new Date(todo.createdAt),
-        updatedAt: new Date(todo.updatedAt),
-        dueDate: todo.dueDate ? new Date(todo.dueDate) : undefined,
+        createdAt: new Date(todo.createdAt as string),
+        updatedAt: new Date(todo.updatedAt as string),
+        dueDate: todo.dueDate ? new Date(todo.dueDate as string) : undefined,
       }));
     } catch (error) {
       console.error("Error loading local todos:", error);
