@@ -13,14 +13,15 @@ export function TodoItemAnimated({ todo }: TodoItemAnimatedProps) {
   const itemRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (itemRef.current) {
+    const currentRef = itemRef.current;
+    if (currentRef) {
       // Entrada con animación
-      animate(itemRef.current, { opacity: [0, 1], y: [20, 0] }, { duration: 0.2 });
+      animate(currentRef, { opacity: [0, 1], y: [20, 0] }, { duration: 0.2 });
 
       // Limpiar animación al eliminar
       return () => {
-        if (itemRef.current) {
-          animate(itemRef.current, { opacity: [1, 0], x: [0, -100] }, { duration: 0.2 });
+        if (currentRef) {
+          animate(currentRef, { opacity: [1, 0], x: [0, -100] }, { duration: 0.2 });
         }
       };
     }

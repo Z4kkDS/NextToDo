@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { TodoProvider } from "@/context/TodoContext";
 import type { Metadata } from "next";
+import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -16,8 +17,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Simple Next TodoApp",
-  description: "A simple todo application built with Next.js",
+  title: "NexToDo - Gestión de Tareas Inteligente",
+  description:
+    "Organiza y optimiza tus tareas con NexToDo. Aplicación moderna con autenticación, prioridades, estadísticas y sincronización en tiempo real.",
+  keywords: ["todo", "tareas", "productividad", "Next.js", "Firebase"],
+  authors: [{ name: "ZakkDev" }],
+  openGraph: {
+    title: "NexToDo - Gestión de Tareas",
+    description: "Organiza tus tareas de manera inteligente y productiva",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -26,14 +35,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <AuthProvider>
-          <TodoProvider>
-            {children}
-            <Toaster />
-          </TodoProvider>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <TodoProvider>
+              {children}
+              <Toaster />
+            </TodoProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
