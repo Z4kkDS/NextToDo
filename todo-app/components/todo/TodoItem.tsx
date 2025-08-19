@@ -31,10 +31,18 @@ export function TodoItem({ todo }: TodoItemProps) {
   return (
     <>
       <Card
-        className={`mb-2 transition-all duration-200 hover:shadow-md 
+        className={`w-full mb-2 transition-all duration-200 hover:shadow-md 
         ${todo.completed ? "opacity-75" : ""} 
-        ${isPastDue(todo.dueDate) ? "border-destructive/50 bg-destructive/5" : ""} 
-        ${isDueSoon(todo.dueDate) ? "border-amber-300 bg-amber-50/50" : ""}`}
+        ${
+          isPastDue(todo.dueDate)
+            ? "border-destructive/50 bg-destructive/5 dark:bg-destructive/10"
+            : ""
+        } 
+        ${
+          isDueSoon(todo.dueDate)
+            ? "border-amber-300 bg-amber-50/50 dark:border-amber-600 dark:bg-amber-900/20"
+            : ""
+        }`}
       >
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-4">

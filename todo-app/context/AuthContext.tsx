@@ -48,6 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     try {
+      setLoading(true);
       // Limpiar usuario local si existe
       localStorage.removeItem("localUser");
       await signInWithPopup(auth, googleProvider);
@@ -59,10 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else if (error.code === "auth/popup-blocked") {
         console.log("El popup fue bloqueado por el navegador");
       }
+      setLoading(false);
     }
   };
 
   const signInAsGuest = () => {
+    setLoading(true);
     const guestUser: LocalUser = {
       uid: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       displayName: "Usuario Local",
@@ -72,6 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     localStorage.setItem("localUser", JSON.stringify(guestUser));
     setUser(guestUser);
+    setLoading(false);
   };
 
   const logout = async () => {
