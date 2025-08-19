@@ -17,18 +17,11 @@ export function TodoItemAnimated({ todo }: TodoItemAnimatedProps) {
     if (currentRef) {
       // Entrada con animación
       animate(currentRef, { opacity: [0, 1], y: [20, 0] }, { duration: 0.2 });
-
-      // Limpiar animación al eliminar
-      return () => {
-        if (currentRef) {
-          animate(currentRef, { opacity: [1, 0], x: [0, -100] }, { duration: 0.2 });
-        }
-      };
     }
-  }, []);
+  }, []); // Solo ejecutar en el montaje inicial
 
   return (
-    <div ref={itemRef}>
+    <div ref={itemRef} className="w-full">
       <TodoItem todo={todo} />
     </div>
   );
