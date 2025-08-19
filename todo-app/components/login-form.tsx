@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { CheckSquare, Loader2 } from "lucide-react";
 
 export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
-  const { signInWithGoogle, loading } = useAuth();
+  const { signInWithGoogle, signInAsGuest, loading } = useAuth();
 
   return (
     <div className={cn("flex flex-col gap-6 w-full max-w-md relative", className)} {...props}>
@@ -16,7 +16,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       <div className="absolute top-0 right-0 z-10">
         <ThemeToggle />
       </div>
-      
+
       {/* Logo de la aplicación */}
       <div className="text-center space-y-4">
         <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto">
@@ -31,14 +31,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
       <Card className="shadow-sm">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-xl">Bienvenido</CardTitle>
-          <CardDescription>
-            Inicia sesión con tu cuenta de Google para acceder a tus tareas personalizadas
-          </CardDescription>
+          <CardDescription>Elige cómo quieres usar NexToDo</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             <Button
-              variant="outline"
+              variant="default"
               className="w-full h-11"
               onClick={signInWithGoogle}
               disabled={loading}
@@ -59,6 +57,31 @@ export function LoginForm({ className, ...props }: React.ComponentProps<"div">) 
               )}
               {loading ? "Iniciando sesión..." : "Continuar con Google"}
             </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">o</span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full h-11"
+              onClick={signInAsGuest}
+              disabled={loading}
+            >
+              <CheckSquare className="mr-2 h-4 w-4" />
+              Demo local
+            </Button>
+
+            <p className="text-xs text-muted-foreground text-center">
+              <strong>Con Google:</strong> Datos sincronizados en la nube
+              <br />
+              <strong>Demo local:</strong> Datos guardados solo en este dispositivo
+            </p>
           </div>
         </CardContent>
       </Card>
