@@ -39,10 +39,10 @@ export function CreateTodoDialog() {
     if (!title.trim()) return;
 
     addTodo({
-      text: title,
-      description,
-      dueDate,
+      text: title.trim(),
       priority: priority as "baja" | "media" | "alta",
+      ...(description?.trim() && { description: description.trim() }),
+      ...(dueDate && { dueDate }),
     });
 
     setOpen(false);

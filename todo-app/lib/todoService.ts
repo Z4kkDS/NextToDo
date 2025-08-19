@@ -75,6 +75,7 @@ export class TodoService {
     updates: Partial<UpdateTodoInput & { completed?: boolean }>
   ): Promise<void> {
     const todoRef = doc(db, TODOS_COLLECTION, todoId);
+
     await updateDoc(todoRef, {
       ...updates,
       updatedAt: new Date(),

@@ -60,10 +60,10 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
 
     const updateData: UpdateTodoInput = {
       text: title.trim(),
-      description: description.trim() || undefined,
-      dueDate,
       priority: priority as "baja" | "media" | "alta",
       completed,
+      ...(description?.trim() && { description: description.trim() }),
+      ...(dueDate && { dueDate }),
     };
 
     updateTodo(todo.id, updateData);
