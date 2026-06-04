@@ -51,6 +51,7 @@ export function TodoItem({ todo }: TodoItemProps) {
                 checked={todo.completed}
                 onCheckedChange={() => toggleTodo(todo.id)}
                 className="mt-1"
+                data-tour="todo-checkbox"
               />
               <div className="flex-1 space-y-2">
                 <div className="flex items-start gap-2 flex-wrap">

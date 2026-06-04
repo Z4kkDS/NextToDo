@@ -44,7 +44,7 @@ export function TodoStats() {
     stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-tour="stats">
       {/* Progreso General */}
       <Card>
         <CardHeader className="pb-3">
