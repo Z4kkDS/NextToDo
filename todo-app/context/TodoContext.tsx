@@ -2,7 +2,7 @@
 
 import { LocalTodoService } from "@/lib/localTodoService";
 import { TodoService } from "@/lib/todoService";
-import { NewTodoInput, Todo, TodoContextType, TodoFilter, UpdateTodoInput } from "@/types";
+import { NewTodoInput, Todo, TodoContextType, TodoFilter, TodoSort, UpdateTodoInput } from "@/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 
@@ -11,6 +11,9 @@ const TodoContext = createContext<TodoContextType | undefined>(undefined);
 export function TodoProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [filter, setFilter] = useState<TodoFilter>("all");
+  const [sort, setSort] = useState<TodoSort>("created");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
 
@@ -132,6 +135,12 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         updateTodo,
         filter,
         setFilter,
+        sort,
+        setSort,
+        searchQuery,
+        setSearchQuery,
+        tagFilter,
+        setTagFilter,
         loading,
       }}
     >

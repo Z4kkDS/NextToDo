@@ -25,6 +25,7 @@ import { useTodo } from "@/context/TodoContext";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { TagInput } from "./TagInput";
 
 interface CreateTodoDialogProps {
   open?: boolean;
@@ -39,6 +40,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState("media");
+  const [tags, setTags] = useState<string[]>([]);
   const { addTodo } = useTodo();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -50,6 +52,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
       priority: priority as "baja" | "media" | "alta",
       ...(description?.trim() && { description: description.trim() }),
       ...(dueDate && { dueDate }),
+      ...(tags.length > 0 && { tags }),
     });
 
     setOpen(false);
@@ -57,6 +60,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
     setDescription("");
     setDueDate(undefined);
     setPriority("media");
+    setTags([]);
     toast.success("Tarea creada correctamente", {
       id: "create-todo",
       duration: 2000,
@@ -114,6 +118,10 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="create-tags">Etiquetas (opcional)</Label>
+              <TagInput id="create-tags" tags={tags} onChange={setTags} />
             </div>
           </div>
           <DialogFooter>

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useTodo } from "@/context/TodoContext";
+import { calculateStreak } from "@/lib/streak";
 import { Todo } from "@/types";
 import {
   AlertTriangle,
@@ -12,6 +13,7 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
+  Flame,
   Rocket,
   Star,
   Target,
@@ -22,6 +24,7 @@ import {
 
 export function TodoStats() {
   const { todos } = useTodo();
+  const streak = calculateStreak(todos);
 
   const stats = {
     total: todos.length,
@@ -64,6 +67,29 @@ export function TodoStats() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Racha de productividad */}
+      {streak > 0 && (
+        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-transparent dark:border-orange-500/20 dark:from-orange-500/10">
+          <CardContent className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/15">
+                <Flame className="h-6 w-6 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold leading-none">
+                  {streak} {streak === 1 ? "día" : "días"}
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {streak === 1
+                    ? "¡Empezaste una racha!"
+                    : "Racha de productividad 🔥"}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Estadísticas Detalladas */}
       <Card>

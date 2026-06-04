@@ -6,6 +6,7 @@ import { CreateTodoDialog } from "@/components/todo/CreateTodoDialog";
 import { TodoFilter } from "@/components/todo/TodoFilter";
 import { TodoList } from "@/components/todo/TodoList";
 import { TodoStats } from "@/components/todo/TodoStats";
+import { TodoToolbar } from "@/components/todo/TodoToolbar";
 import { StatsSkeleton, TodoListSkeleton } from "@/components/todo/TodoSkeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -89,11 +90,12 @@ export default function DashboardPage() {
               <TodoListSkeleton count={3} />
             ) : (
               <Card className="shadow-sm">
-                <CardContent className="p-6">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <CardContent className="p-6 space-y-5">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <TodoFilter />
                     <CreateTodoDialog open={createOpen} onOpenChange={setCreateOpen} />
                   </div>
+                  <TodoToolbar />
                   <TodoList onCreateClick={() => setCreateOpen(true)} />
                 </CardContent>
               </Card>

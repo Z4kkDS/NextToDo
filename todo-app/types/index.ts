@@ -8,15 +8,19 @@ export interface Todo {
   updatedAt: Date;
   dueDate?: Date;
   priority: "baja" | "media" | "alta";
+  tags?: string[];
 }
 
 export type TodoFilter = "all" | "active" | "completed" | "overdue";
+
+export type TodoSort = "created" | "dueDate" | "priority" | "alphabetical";
 
 export interface NewTodoInput {
   text: string;
   description?: string;
   dueDate?: Date;
   priority: "baja" | "media" | "alta";
+  tags?: string[];
 }
 
 export interface UpdateTodoInput {
@@ -25,6 +29,7 @@ export interface UpdateTodoInput {
   dueDate?: Date;
   priority?: "baja" | "media" | "alta";
   completed?: boolean;
+  tags?: string[];
 }
 
 export interface TodoContextType {
@@ -35,5 +40,11 @@ export interface TodoContextType {
   updateTodo: (id: string, todo: Partial<UpdateTodoInput>) => void;
   filter: TodoFilter;
   setFilter: (filter: TodoFilter) => void;
+  sort: TodoSort;
+  setSort: (sort: TodoSort) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  tagFilter: string | null;
+  setTagFilter: (tag: string | null) => void;
   loading: boolean;
 }

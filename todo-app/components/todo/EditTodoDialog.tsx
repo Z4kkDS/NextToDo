@@ -25,6 +25,7 @@ import { useTodo } from "@/context/TodoContext";
 import { Todo, UpdateTodoInput } from "@/types";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { TagInput } from "./TagInput";
 
 interface EditTodoDialogProps {
   todo: Todo;
@@ -40,6 +41,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
   );
   const [priority, setPriority] = useState(todo.priority);
   const [completed, setCompleted] = useState(todo.completed);
+  const [tags, setTags] = useState<string[]>(todo.tags ?? []);
   const { updateTodo } = useTodo();
 
   // Actualizar el estado cuando cambie el todo
@@ -49,6 +51,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setDueDate(todo.dueDate ? new Date(todo.dueDate) : undefined);
     setPriority(todo.priority);
     setCompleted(todo.completed);
+    setTags(todo.tags ?? []);
   }, [todo]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,6 +65,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
       text: title.trim(),
       priority: priority as "baja" | "media" | "alta",
       completed,
+      tags,
       ...(description?.trim() && { description: description.trim() }),
       ...(dueDate && { dueDate }),
     };
@@ -79,6 +83,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setDueDate(todo.dueDate ? new Date(todo.dueDate) : undefined);
     setPriority(todo.priority);
     setCompleted(todo.completed);
+    setTags(todo.tags ?? []);
     onOpenChange(false);
   };
 
@@ -141,6 +146,10 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
             <div className="space-y-2">
               <Label>Fecha de vencimiento (opcional)</Label>
               <DateTimePicker date={dueDate} setDate={setDueDate} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="edit-tags">Etiquetas (opcional)</Label>
+              <TagInput id="edit-tags" tags={tags} onChange={setTags} />
             </div>
           </div>
           <DialogFooter>
