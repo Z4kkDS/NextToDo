@@ -2,7 +2,7 @@
 
 import { auth, googleProvider } from "@/lib/firebase";
 import { LocalTodoService } from "@/lib/localTodoService";
-import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
+import { getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut, User } from "firebase/auth";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 
 // Tipo para usuario local
@@ -38,6 +38,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // Si no hay usuario local, verificar Firebase Auth
+    // Primero capturamos el resultado del redirect de Google (si lo hay)
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setUser(result.user);
+          setLoading(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error getting redirect result:", error);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -49,17 +61,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       setLoading(true);
-      // Limpiar usuario local si existe
       localStorage.removeItem("localUser");
-      await signInWithPopup(auth, googleProvider);
-    } catch (error: any) {
+      // Redirect es más robusto que popup en producción (evita bloqueos y
+      // problemas de comunicación cross-origin con el popup de Firebase).
+      await signInWithRedirect(auth, googleProvider);
+      // La página se recarga; el resultado se captura en el useEffect via getRedirectResult.
+    } catch (error) {
       console.error("Error signing in with Google:", error);
-      // Manejar errores específicos
-      if (error.code === "auth/popup-closed-by-user") {
-        console.log("El usuario cerró el popup de autenticación");
-      } else if (error.code === "auth/popup-blocked") {
-        console.log("El popup fue bloqueado por el navegador");
-      }
       setLoading(false);
     }
   };
