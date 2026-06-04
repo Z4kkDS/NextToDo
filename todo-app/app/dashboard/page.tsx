@@ -1,6 +1,7 @@
 "use client";
 
 import { UserHeader } from "@/components/auth/UserHeader";
+import { WelcomeChecklist } from "@/components/onboarding/WelcomeChecklist";
 import { CreateTodoDialog } from "@/components/todo/CreateTodoDialog";
 import { TodoFilter } from "@/components/todo/TodoFilter";
 import { TodoList } from "@/components/todo/TodoList";
@@ -107,7 +108,8 @@ export default function DashboardPage() {
 
           {/* Statistics Panel */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24">
+            <div className="sticky top-24 space-y-6">
+              <WelcomeChecklist />
               <TodoStats />
             </div>
           </div>

@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/context/AuthContext";
-import { LogOut, User } from "lucide-react";
+import { useOnboarding } from "@/context/OnboardingContext";
+import { HelpCircle, LogOut, User } from "lucide-react";
 import Image from "next/image";
 
 export function UserHeader() {
   const { user, logout } = useAuth();
+  const { startTour } = useOnboarding();
 
   if (!user) return null;
 
@@ -51,6 +53,10 @@ export function UserHeader() {
               </div>
             </div>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={startTour} className="cursor-pointer">
+              <HelpCircle className="mr-2 h-4 w-4" />
+              Ver tutorial
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={logout} className="cursor-pointer">
               <LogOut className="mr-2 h-4 w-4" />
               Cerrar sesión

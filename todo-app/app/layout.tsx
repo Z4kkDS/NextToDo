@@ -1,5 +1,7 @@
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import { OnboardingProvider } from "@/context/OnboardingContext";
 import { TodoProvider } from "@/context/TodoContext";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
@@ -45,8 +47,11 @@ export default function RootLayout({
         >
           <AuthProvider>
             <TodoProvider>
-              {children}
-              <Toaster />
+              <OnboardingProvider>
+                {children}
+                <OnboardingTour />
+                <Toaster />
+              </OnboardingProvider>
             </TodoProvider>
           </AuthProvider>
         </ThemeProvider>
