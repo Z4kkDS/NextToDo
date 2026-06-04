@@ -11,14 +11,32 @@ interface TodoItemAnimatedProps {
 
 export function TodoItemAnimated({ todo }: TodoItemAnimatedProps) {
   const itemRef = useRef<HTMLDivElement>(null);
+  const prevCompleted = useRef(todo.completed);
 
+  // Animación de entrada al montar
   useEffect(() => {
-    const currentRef = itemRef.current;
-    if (currentRef) {
-      // Entrada con animación
-      animate(currentRef, { opacity: [0, 1], y: [20, 0] }, { duration: 0.2 });
+    const el = itemRef.current;
+    if (!el) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+    animate(el, { opacity: [0, 1], y: [12, 0] }, { duration: 0.2 });
+  }, []);
+
+  // Micro-animación al marcar completada / desmarcar
+  useEffect(() => {
+    const el = itemRef.current;
+    if (!el || prevCompleted.current === todo.completed) return;
+    prevCompleted.current = todo.completed;
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    if (todo.completed) {
+      animate(el, { scale: [1, 1.02, 0.98, 1] }, { duration: 0.3 });
+    } else {
+      animate(el, { opacity: [0.5, 1] }, { duration: 0.2 });
     }
-  }, []); // Solo ejecutar en el montaje inicial
+  }, [todo.completed]);
 
   return (
     <div ref={itemRef} className="w-full">
