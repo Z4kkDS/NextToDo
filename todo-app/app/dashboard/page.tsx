@@ -10,33 +10,23 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { useTodo } from "@/context/TodoContext";
-import { Inbox, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const { todos, loading: todosLoading } = useTodo();
   const router = useRouter();
+  const [createOpen, setCreateOpen] = useState(false);
 
-  // Redirigir a login si no está autenticado
   useEffect(() => {
     if (!user && !authLoading) {
       router.push("/login");
     }
   }, [user, authLoading, router]);
 
-  // Mostrar loading mientras se verifica la autenticación
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  // Si no hay usuario, mostrar loading mientras redirige
-  if (!user) {
+  if (authLoading || !user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -46,7 +36,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header con información del usuario */}
       <UserHeader />
 
       <div className="container mx-auto px-4 py-6 lg:py-8">
@@ -54,37 +43,22 @@ export default function DashboardPage() {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* Welcome Section */}
-            <div className="text-center lg:text-left space-y-4">
-              {todos.length === 0 && !todosLoading ? (
-                <div className="flex flex-col lg:flex-row items-center lg:items-start lg:justify-between space-y-4 lg:space-y-0">
-                  <div className="space-y-2">
-                    <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
-                      ¡Hola, {user.displayName?.split(" ")[0] || "Usuario"}!
-                    </h2>
-                    <p className="text-muted-foreground text-lg">
-                      No tienes tareas aún. Crear tu primera tarea para comenzar a organizar tu día.
-                    </p>
-                  </div>
-                  <div className="flex-shrink-0">
-                    <Inbox className="h-16 w-16 text-muted-foreground" />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
-                    ¡Hola, {user.displayName?.split(" ")[0] || "Usuario"}!
-                  </h2>
-                  <p className="text-muted-foreground text-lg">
-                    Tienes {todos.filter((t) => !t.completed).length}{" "}
-                    {todos.filter((t) => !t.completed).length === 1
-                      ? "tarea pendiente"
-                      : "tareas pendientes"}
-                  </p>
-                </div>
-              )}
+            <div className="text-center lg:text-left space-y-2">
+              <h2 className="text-3xl lg:text-4xl font-bold text-foreground">
+                ¡Hola, {user.displayName?.split(" ")[0] || "Usuario"}!
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                {todos.length === 0
+                  ? "Empieza añadiendo tu primera tarea."
+                  : `Tienes ${todos.filter((t) => !t.completed).length} ${
+                      todos.filter((t) => !t.completed).length === 1
+                        ? "tarea pendiente"
+                        : "tareas pendientes"
+                    }.`}
+              </p>
             </div>
 
-            <Separator className="my-6" />
+            <Separator />
 
             {/* Loading state */}
             {todosLoading ? (
@@ -93,14 +67,13 @@ export default function DashboardPage() {
                 <span className="ml-2">Cargando tus tareas...</span>
               </div>
             ) : (
-              /* Filters and Todo List */
               <Card className="shadow-sm">
                 <CardContent className="p-6">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
                     <TodoFilter />
-                    <CreateTodoDialog />
+                    <CreateTodoDialog open={createOpen} onOpenChange={setCreateOpen} />
                   </div>
-                  <TodoList />
+                  <TodoList onCreateClick={() => setCreateOpen(true)} />
                 </CardContent>
               </Card>
             )}

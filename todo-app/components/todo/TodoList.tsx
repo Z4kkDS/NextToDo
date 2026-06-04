@@ -9,11 +9,15 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useTodo } from "@/context/TodoContext";
-import { Moon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { EmptyState } from "./EmptyState";
 import { TodoItemAnimated } from "./TodoItemAnimated";
 
-export function TodoList() {
+interface TodoListProps {
+  onCreateClick?: () => void;
+}
+
+export function TodoList({ onCreateClick }: TodoListProps) {
   const { todos, filter } = useTodo();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
@@ -21,33 +25,22 @@ export function TodoList() {
   const filteredTodos = todos.filter((todo) => {
     if (filter === "active") return !todo.completed;
     if (filter === "completed") return todo.completed;
+    if (filter === "overdue") {
+      return !todo.completed && todo.dueDate && new Date(todo.dueDate) < new Date();
+    }
     return true;
   });
 
-  // Calcular el total de páginas
   const totalPages = Math.ceil(filteredTodos.length / itemsPerPage);
-
-  // Calcular el índice de inicio y fin para la página actual
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentTodos = filteredTodos.slice(startIndex, endIndex);
+  const currentTodos = filteredTodos.slice(startIndex, startIndex + itemsPerPage);
 
-  // Resetear a la primera página cuando cambie el filtro
   useEffect(() => {
     setCurrentPage(1);
   }, [filter]);
 
   if (todos.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12 space-y-3">
-        <div className="opacity-50">
-          <Moon className="h-12 w-12 text-muted-foreground" />
-        </div>
-        <div className="text-center">
-          <h3 className="text-lg font-medium text-muted-foreground">ZzZzZz....</h3>
-        </div>
-      </div>
-    );
+    return <EmptyState onCreateClick={onCreateClick ?? (() => {})} />;
   }
 
   if (filteredTodos.length === 0) {
@@ -62,23 +55,20 @@ export function TodoList() {
 
   return (
     <div className="space-y-4">
-      {/* Lista de tareas */}
       <div className="space-y-2">
         {currentTodos.map((todo) => (
           <TodoItemAnimated key={todo.id} todo={todo} />
         ))}
       </div>
 
-      {filteredTodos.length > 0 && (
+      {totalPages > 1 && (
         <div className="flex justify-center pt-6 border-t">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
                 <PaginationPrevious
                   onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  className={
-                    currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"
-                  }
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
 
@@ -97,9 +87,7 @@ export function TodoList() {
               <PaginationItem>
                 <PaginationNext
                   onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  className={
-                    currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"
-                  }
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                 />
               </PaginationItem>
             </PaginationContent>
