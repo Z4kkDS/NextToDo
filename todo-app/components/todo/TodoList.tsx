@@ -9,7 +9,9 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { useTodo } from "@/context/TodoContext";
-import { useEffect, useState } from "react";
+import { applyFilters, applySort } from "@/lib/todo-utils";
+import { SearchX } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { EmptyState } from "./EmptyState";
 import { TodoItemAnimated } from "./TodoItemAnimated";
 
@@ -18,26 +20,28 @@ interface TodoListProps {
 }
 
 export function TodoList({ onCreateClick }: TodoListProps) {
-  const { todos, filter } = useTodo();
+  const { todos, filter, sort, searchQuery, tagFilter } = useTodo();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const filteredTodos = todos.filter((todo) => {
-    if (filter === "active") return !todo.completed;
-    if (filter === "completed") return todo.completed;
-    if (filter === "overdue") {
-      return !todo.completed && todo.dueDate && new Date(todo.dueDate) < new Date();
-    }
-    return true;
-  });
+  const filteredTodos = useMemo(() => {
+    const filtered = applyFilters(todos, filter, searchQuery, tagFilter);
+    return applySort(filtered, sort);
+  }, [todos, filter, sort, searchQuery, tagFilter]);
 
   const totalPages = Math.ceil(filteredTodos.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentTodos = filteredTodos.slice(startIndex, startIndex + itemsPerPage);
 
+  // Volver a la primera página al cambiar cualquier criterio.
   useEffect(() => {
     setCurrentPage(1);
-  }, [filter]);
+  }, [filter, sort, searchQuery, tagFilter]);
+
+  // Corregir página si quedó fuera de rango tras filtrar.
+  useEffect(() => {
+    if (currentPage > totalPages && totalPages > 0) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   if (todos.length === 0) {
     return <EmptyState onCreateClick={onCreateClick ?? (() => {})} />;
@@ -45,9 +49,10 @@ export function TodoList({ onCreateClick }: TodoListProps) {
 
   if (filteredTodos.length === 0) {
     return (
-      <div className="text-center py-8">
+      <div className="flex flex-col items-center justify-center text-center py-12 gap-3">
+        <SearchX className="h-10 w-10 text-muted-foreground/50" />
         <p className="text-muted-foreground">
-          No hay tareas que coincidan con el filtro seleccionado.
+          No hay tareas que coincidan con tu búsqueda o filtros.
         </p>
       </div>
     );

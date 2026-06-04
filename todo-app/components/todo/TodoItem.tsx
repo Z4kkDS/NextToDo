@@ -6,8 +6,10 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTodo } from "@/context/TodoContext";
 import { getPriorityLabel, getPriorityVariant, isDueSoon, isPastDue } from "@/lib/priority-utils";
+import { getTagColor } from "@/lib/todo-utils";
+import { cn } from "@/lib/utils";
 import { Todo } from "@/types";
-import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, Trash2 } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, RotateCcw, Tag, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EditTodoDialog } from "./EditTodoDialog";
@@ -23,12 +25,20 @@ const PRIORITY_BAR: Record<string, string> = {
 };
 
 export function TodoItem({ todo }: TodoItemProps) {
-  const { toggleTodo, deleteTodo } = useTodo();
+  const { toggleTodo, deleteTodo, setTagFilter } = useTodo();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const handleDelete = () => {
     deleteTodo(todo.id);
     toast.success("Tarea eliminada", { id: `delete-${todo.id}`, duration: 2000 });
+  };
+
+  const handleToggle = () => {
+    toggleTodo(todo.id);
+    toast.success(todo.completed ? "Tarea marcada como pendiente" : "¡Tarea completada! 🎉", {
+      id: `toggle-${todo.id}`,
+      duration: 1800,
+    });
   };
 
   const barColor = PRIORITY_BAR[todo.priority] ?? "bg-muted";
@@ -103,6 +113,26 @@ export function TodoItem({ todo }: TodoItemProps) {
                       <p className="text-sm text-muted-foreground">{todo.description}</p>
                     )}
 
+                    {todo.tags && todo.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {todo.tags.map((tag) => (
+                          <button
+                            key={tag}
+                            type="button"
+                            onClick={() => setTagFilter(tag)}
+                            className={cn(
+                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity",
+                              getTagColor(tag)
+                            )}
+                            aria-label={`Filtrar por etiqueta ${tag}`}
+                          >
+                            <Tag className="h-2.5 w-2.5" />
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
                       <span>
                         Creada:{" "}
@@ -147,6 +177,28 @@ export function TodoItem({ todo }: TodoItemProps) {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
+              </div>
+
+              {/* Botón explícito de completar / deshacer */}
+              <div className="mt-3 pl-8">
+                <Button
+                  variant={todo.completed ? "outline" : "default"}
+                  size="sm"
+                  onClick={handleToggle}
+                  className="gap-1.5 cursor-pointer"
+                >
+                  {todo.completed ? (
+                    <>
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      Marcar como pendiente
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      Completar
+                    </>
+                  )}
+                </Button>
               </div>
             </CardHeader>
           </div>
