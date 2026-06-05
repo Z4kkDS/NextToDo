@@ -7,10 +7,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useTodo } from "@/context/TodoContext";
 import { formatCLP } from "@/lib/finance-utils";
 import { getPriorityLabel, getPriorityVariant, isDueSoon, isPastDue } from "@/lib/priority-utils";
+import { isRecurring, recurrenceLabel } from "@/lib/recurrence";
 import { getTagColor } from "@/lib/todo-utils";
 import { cn } from "@/lib/utils";
 import { Todo } from "@/types";
-import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, RotateCcw, Tag, Trash2, Wallet } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, Repeat, RotateCcw, Tag, Trash2, Wallet } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EditTodoDialog } from "./EditTodoDialog";
@@ -36,10 +37,13 @@ export function TodoItem({ todo }: TodoItemProps) {
 
   const handleToggle = () => {
     toggleTodo(todo.id);
-    toast.success(todo.completed ? "Tarea marcada como pendiente" : "¡Tarea completada! 🎉", {
-      id: `toggle-${todo.id}`,
-      duration: 1800,
-    });
+    const completing = !todo.completed;
+    const message = completing
+      ? isRecurring(todo)
+        ? "¡Completada! Se creó la siguiente repetición 🔁"
+        : "¡Tarea completada! 🎉"
+      : "Tarea marcada como pendiente";
+    toast.success(message, { id: `toggle-${todo.id}`, duration: 2000 });
   };
 
   const barColor = PRIORITY_BAR[todo.priority] ?? "bg-muted";
@@ -120,6 +124,12 @@ export function TodoItem({ todo }: TodoItemProps) {
                           >
                             <Wallet className="h-3 w-3" />
                             {formatCLP(todo.amount)}
+                          </Badge>
+                        )}
+                        {isRecurring(todo) && (
+                          <Badge variant="secondary" className="text-xs gap-1">
+                            <Repeat className="h-3 w-3" />
+                            {recurrenceLabel(todo.recurrence)}
                           </Badge>
                         )}
                       </div>
