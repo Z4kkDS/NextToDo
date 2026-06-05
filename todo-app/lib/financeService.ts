@@ -43,6 +43,14 @@ export class FinanceService {
     await setDoc(ref, budget);
   }
 
+  /** Lee los presupuestos existentes para una lista de meses (no crea). */
+  static async getBudgets(userId: string, months: string[]): Promise<MonthBudget[]> {
+    const snaps = await Promise.all(
+      months.map((m) => getDoc(doc(db, BUDGETS, `${userId}_${m}`)))
+    );
+    return snaps.filter((s) => s.exists()).map((s) => s.data() as MonthBudget);
+  }
+
   static async getGoals(userId: string): Promise<SavingsGoal[]> {
     const ref = doc(db, GOALS, userId);
     const snap = await getDoc(ref);

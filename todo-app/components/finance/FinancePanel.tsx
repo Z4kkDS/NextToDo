@@ -8,6 +8,7 @@ import { useMemo } from "react";
 import { BalanceSummary } from "./BalanceSummary";
 import { ExpenseSection } from "./ExpenseSection";
 import { FinanceAdvice } from "./FinanceAdvice";
+import { FinanceCharts } from "./FinanceCharts";
 import { IncomeSection } from "./IncomeSection";
 import { MonthSelector } from "./MonthSelector";
 import { Rule503020 } from "./Rule503020";
@@ -49,6 +50,8 @@ export function FinancePanel() {
             taskSpent={taskExpenses.spent}
             taskPlanned={taskExpenses.planned}
           />
+
+          <FinanceCharts budget={budget} />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">

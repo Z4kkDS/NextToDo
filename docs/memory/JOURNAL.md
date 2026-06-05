@@ -5,6 +5,20 @@
 
 ---
 
+## 2026-06-05 · recharts 3: el `formatter` del Tooltip no acepta `(value: number)`
+
+**Síntoma:** `next build` fallaba con *"Type '(value: number) => string' is not
+assignable to type 'Formatter<ValueType, NameType>'"* en los gráficos.
+
+**Causa:** en recharts 3 el `formatter` del `<Tooltip>` recibe `ValueType`
+(`number | string | array`), no `number`. Anotar el parámetro como `number` lo
+hace incompatible.
+
+**Solución:** quitar la anotación y coercionar: `formatter={(value) =>
+formatCLP(Number(value))}`.
+
+---
+
 ## 2026-06-05 · PR #12 "merged" pero el código no llegó a main
 
 **Síntoma:** tras desplegar todos los PRs, la pestaña Finanzas desapareció,

@@ -64,6 +64,12 @@ export class LocalFinanceService {
     this.saveData(userId, data);
   }
 
+  /** Devuelve los presupuestos existentes para una lista de meses (no crea). */
+  static getBudgets(userId: string, months: string[]): MonthBudget[] {
+    const data = this.getData(userId);
+    return months.map((m) => data.budgets[m]).filter((b): b is MonthBudget => !!b);
+  }
+
   static getGoals(userId: string): SavingsGoal[] {
     return this.getData(userId).goals;
   }
