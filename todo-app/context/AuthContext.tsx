@@ -2,8 +2,10 @@
 
 import { auth, googleProvider } from "@/lib/firebase";
 import { LocalTodoService } from "@/lib/localTodoService";
-import { getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut, User } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 // Tipo para usuario local
 interface LocalUser {
@@ -37,19 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Si no hay usuario local, verificar Firebase Auth
-    // Primero capturamos el resultado del redirect de Google (si lo hay)
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setUser(result.user);
-          setLoading(false);
-        }
-      })
-      .catch((error) => {
-        console.error("Error getting redirect result:", error);
-      });
-
+    // Si no hay usuario local, escuchar el estado de Firebase Auth.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       setLoading(false);
@@ -62,12 +52,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setLoading(true);
       localStorage.removeItem("localUser");
-      // Redirect es más robusto que popup en producción (evita bloqueos y
-      // problemas de comunicación cross-origin con el popup de Firebase).
-      await signInWithRedirect(auth, googleProvider);
-      // La página se recarga; el resultado se captura en el useEffect via getRedirectResult.
+      // Popup: el flujo se completa en la ventana emergente y la credencial
+      // vuelve por el SDK. Es más fiable que signInWithRedirect en navegadores
+      // que particionan cookies de terceros (el redirect perdía la sesión al
+      // volver desde el dominio *.firebaseapp.com).
+      await signInWithPopup(auth, googleProvider);
+      // onAuthStateChanged se encarga de actualizar el usuario.
     } catch (error) {
       console.error("Error signing in with Google:", error);
+
+      if (error instanceof FirebaseError) {
+        // El usuario cerró el popup o canceló: no es un error que mostrar.
+        if (
+          error.code === "auth/popup-closed-by-user" ||
+          error.code === "auth/cancelled-popup-request"
+        ) {
+          // silencioso
+        } else if (error.code === "auth/popup-blocked") {
+          toast.error("El navegador bloqueó la ventana. Permite las ventanas emergentes e inténtalo de nuevo.");
+        } else if (error.code === "auth/unauthorized-domain") {
+          toast.error(
+            "Este dominio no está autorizado en Firebase. Agrégalo en Authentication → Settings → Authorized domains."
+          );
+        } else {
+          toast.error("No se pudo iniciar sesión con Google. Inténtalo de nuevo.");
+        }
+      } else {
+        toast.error("No se pudo iniciar sesión con Google. Inténtalo de nuevo.");
+      }
+    } finally {
       setLoading(false);
     }
   };
