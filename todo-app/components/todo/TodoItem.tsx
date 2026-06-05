@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useTodo } from "@/context/TodoContext";
+import { formatCLP } from "@/lib/finance-utils";
 import { getPriorityLabel, getPriorityVariant, isDueSoon, isPastDue } from "@/lib/priority-utils";
 import { getTagColor } from "@/lib/todo-utils";
 import { cn } from "@/lib/utils";
 import { Todo } from "@/types";
-import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, RotateCcw, Tag, Trash2 } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, RotateCcw, Tag, Trash2, Wallet } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EditTodoDialog } from "./EditTodoDialog";
@@ -104,6 +105,21 @@ export function TodoItem({ todo }: TodoItemProps) {
                           <Badge variant="secondary" className="text-xs text-amber-700">
                             <Clock className="h-3 w-3 mr-1" />
                             Vence pronto
+                          </Badge>
+                        )}
+                        {typeof todo.amount === "number" && todo.amount > 0 && (
+                          <Badge
+                            variant="outline"
+                            className={cn(
+                              "text-xs tabular-nums gap-1",
+                              todo.completed
+                                ? "border-emerald-300 text-emerald-700 dark:border-emerald-500/40 dark:text-emerald-300"
+                                : "border-primary/40 text-primary"
+                            )}
+                            title={todo.completed ? "Gasto registrado" : "Gasto programado"}
+                          >
+                            <Wallet className="h-3 w-3" />
+                            {formatCLP(todo.amount)}
                           </Badge>
                         )}
                       </div>

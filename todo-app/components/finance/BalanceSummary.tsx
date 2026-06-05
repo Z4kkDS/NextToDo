@@ -2,22 +2,25 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import {
-  availableBalance,
-  formatCLP,
-  savingsRate,
-  totalIncome,
-  totalSpent,
-} from "@/lib/finance-utils";
+import { formatCLP, totalIncome, totalSpent } from "@/lib/finance-utils";
 import { cn } from "@/lib/utils";
 import { MonthBudget } from "@/types/finance";
-import { ArrowDownCircle, ArrowUpCircle, PiggyBank, Wallet } from "lucide-react";
+import { ArrowDownCircle, ArrowUpCircle, ListChecks, PiggyBank, Wallet } from "lucide-react";
 
-export function BalanceSummary({ budget }: { budget: MonthBudget }) {
+interface BalanceSummaryProps {
+  budget: MonthBudget;
+  /** Gasto ya registrado proveniente de tareas completadas con monto. */
+  taskSpent?: number;
+  /** Gasto programado proveniente de tareas pendientes con monto. */
+  taskPlanned?: number;
+}
+
+export function BalanceSummary({ budget, taskSpent = 0, taskPlanned = 0 }: BalanceSummaryProps) {
   const income = totalIncome(budget.incomes);
-  const spent = totalSpent(budget.expenses);
-  const available = availableBalance(budget);
-  const rate = savingsRate(budget);
+  // El gasto total incluye lo del presupuesto + lo de tareas completadas.
+  const spent = totalSpent(budget.expenses) + taskSpent;
+  const available = income - spent;
+  const rate = income > 0 ? Math.round((available / income) * 100) : 0;
   const spentPct = income > 0 ? Math.min(Math.round((spent / income) * 100), 100) : 0;
   const negative = available < 0;
 
@@ -76,6 +79,12 @@ export function BalanceSummary({ budget }: { budget: MonthBudget }) {
             <PiggyBank className="h-3 w-3" />
             Tasa de ahorro: <span className="font-semibold">{rate}%</span>
           </div>
+          {taskPlanned > 0 && (
+            <div className="flex items-center gap-1 text-xs text-primary/80 mt-1">
+              <ListChecks className="h-3 w-3" />
+              {formatCLP(taskPlanned)} programado en tareas
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

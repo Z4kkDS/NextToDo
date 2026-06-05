@@ -22,10 +22,12 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useTodo } from "@/context/TodoContext";
+import { ExpenseCategory } from "@/types/finance";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { TagInput } from "./TagInput";
+import { TaskCostFields } from "./TaskCostFields";
 
 interface CreateTodoDialogProps {
   open?: boolean;
@@ -41,11 +43,15 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
   const [dueDate, setDueDate] = useState<Date>();
   const [priority, setPriority] = useState("media");
   const [tags, setTags] = useState<string[]>([]);
+  const [amount, setAmount] = useState<number | undefined>(undefined);
+  const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>("cuentas");
   const { addTodo } = useTodo();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
+
+    const hasAmount = typeof amount === "number" && amount > 0;
 
     addTodo({
       text: title.trim(),
@@ -53,6 +59,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
       ...(description?.trim() && { description: description.trim() }),
       ...(dueDate && { dueDate }),
       ...(tags.length > 0 && { tags }),
+      ...(hasAmount && { amount, expenseCategory }),
     });
 
     setOpen(false);
@@ -61,6 +68,8 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
     setDueDate(undefined);
     setPriority("media");
     setTags([]);
+    setAmount(undefined);
+    setExpenseCategory("cuentas");
     toast.success("Tarea creada correctamente", {
       id: "create-todo",
       duration: 2000,
@@ -123,6 +132,13 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
               <Label htmlFor="create-tags">Etiquetas (opcional)</Label>
               <TagInput id="create-tags" tags={tags} onChange={setTags} />
             </div>
+            <TaskCostFields
+              idPrefix="create"
+              amount={amount}
+              onAmountChange={setAmount}
+              category={expenseCategory}
+              onCategoryChange={setExpenseCategory}
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" type="button" onClick={() => setOpen(false)}>
