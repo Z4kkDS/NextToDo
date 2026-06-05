@@ -46,6 +46,16 @@ export const CATEGORY_META: Record<ExpenseCategory, { label: string; color: stri
   otros: { label: "Otros", color: "bg-slate-500" },
 };
 
+/** Colores hex por categoría (para gráficos: recharts no acepta clases Tailwind). */
+export const CATEGORY_HEX: Record<ExpenseCategory, string> = {
+  cuentas: "#0ea5e9", // sky-500
+  ahorro: "#10b981", // emerald-500
+  proyectos: "#8b5cf6", // violet-500
+  deudas: "#f43f5e", // rose-500
+  subscripciones: "#f59e0b", // amber-500
+  otros: "#64748b", // slate-500
+};
+
 export function totalIncome(incomes: Income[]): number {
   return incomes.reduce((sum, i) => sum + i.amount, 0);
 }

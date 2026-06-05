@@ -16,13 +16,14 @@
 | F-B5 | Panel de Finanzas (mes independiente, ingresos, gastos, 50/30/20, metas) | #12 → #14 |
 | F-B6 | Auth Google: popup + errores visibles por toast | #13 |
 | F-01 | Tareas con costo (puente tareas↔finanzas) | #16 |
-| F-05 | Consejos inteligentes (motor de reglas + semáforo) | PR pendiente |
+| F-05 | Consejos inteligentes (motor de reglas + semáforo) | #17 |
+| F-13 | Gráficos en Finanzas (dona + tendencia) | PR pendiente |
 
 ---
 
 ## 🔄 En curso
 
-_Ninguna feature en curso. Siguiente P1: F-13 Gráficos en Finanzas._
+_Ninguna feature en curso. Último P1: F-07 Tareas recurrentes._
 
 ---
 
@@ -32,9 +33,9 @@ Priorizado en sesión 2026-06-05.
 
 ### 🔴 P1 — próxima ola
 - [x] **F-01** Tareas con costo (puente tareas↔finanzas) — ✅ hecho (#16)
-- [x] **F-05** Consejos inteligentes (motor de reglas + semáforo) — ✅ hecho
-- [ ] **F-13** Gráficos en Finanzas (dona + tendencia) — *requiere recharts* ← SIGUIENTE
-- [ ] **F-07** Tareas recurrentes — *la más pedida en todo apps*
+- [x] **F-05** Consejos inteligentes (motor de reglas + semáforo) — ✅ hecho (#17)
+- [x] **F-13** Gráficos en Finanzas (dona + tendencia) — ✅ hecho
+- [ ] **F-07** Tareas recurrentes — *la más pedida en todo apps* ← SIGUIENTE (último P1)
 
 ### 🟡 P2 — siguiente
 - [ ] **F-02** Gastos recurrentes → recordatorios (depende de F-01/F-07)

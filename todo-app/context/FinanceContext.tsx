@@ -1,7 +1,7 @@
 "use client";
 
 import { FinanceService } from "@/lib/financeService";
-import { monthKey } from "@/lib/finance-utils";
+import { monthKey, shiftMonth } from "@/lib/finance-utils";
 import { LocalFinanceService } from "@/lib/localFinanceService";
 import {
   Expense,
@@ -28,6 +28,8 @@ interface FinanceContextType {
   addGoal: (name: string, target: number) => void;
   updateGoal: (id: string, patch: Partial<SavingsGoal>) => void;
   deleteGoal: (id: string) => void;
+  /** Carga los presupuestos existentes de los últimos N meses (para gráficos). */
+  loadTrend: (monthsBack: number) => Promise<MonthBudget[]>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -147,6 +149,25 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     persistGoals(goals.filter((g) => g.id !== id));
   };
 
+  // ── Tendencia (varios meses) ──
+  const loadTrend = useCallback(
+    async (monthsBack: number): Promise<MonthBudget[]> => {
+      if (!user) return [];
+      // Genera las claves de mes desde (N-1) meses atrás hasta el mes actual.
+      const months: string[] = [];
+      for (let i = monthsBack - 1; i >= 0; i--) months.push(shiftMonth(month, -i));
+      try {
+        return isLocal
+          ? LocalFinanceService.getBudgets(user.uid, months)
+          : await FinanceService.getBudgets(user.uid, months);
+      } catch (error) {
+        console.error("Error loading trend:", error);
+        return [];
+      }
+    },
+    [user, isLocal, month]
+  );
+
   return (
     <FinanceContext.Provider
       value={{
@@ -163,6 +184,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         addGoal,
         updateGoal,
         deleteGoal,
+        loadTrend,
       }}
     >
       {children}
