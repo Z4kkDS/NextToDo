@@ -15,13 +15,14 @@
 | F-B4 | Buscador, ordenamiento, etiquetas, racha, botón completar | #11 |
 | F-B5 | Panel de Finanzas (mes independiente, ingresos, gastos, 50/30/20, metas) | #12 → #14 |
 | F-B6 | Auth Google: popup + errores visibles por toast | #13 |
-| F-01 | Tareas con costo (puente tareas↔finanzas) | PR pendiente |
+| F-01 | Tareas con costo (puente tareas↔finanzas) | #16 |
+| F-05 | Consejos inteligentes (motor de reglas + semáforo) | PR pendiente |
 
 ---
 
 ## 🔄 En curso
 
-_Ninguna feature en curso. Siguiente P1: F-05 Consejos inteligentes._
+_Ninguna feature en curso. Siguiente P1: F-13 Gráficos en Finanzas._
 
 ---
 
@@ -30,9 +31,9 @@ _Ninguna feature en curso. Siguiente P1: F-05 Consejos inteligentes._
 Priorizado en sesión 2026-06-05.
 
 ### 🔴 P1 — próxima ola
-- [x] **F-01** Tareas con costo (puente tareas↔finanzas) — ✅ hecho
-- [ ] **F-05** Consejos inteligentes (motor de reglas + semáforo) — *cierra Finanzas, sin deps* ← SIGUIENTE
-- [ ] **F-13** Gráficos en Finanzas (dona + tendencia) — *requiere recharts*
+- [x] **F-01** Tareas con costo (puente tareas↔finanzas) — ✅ hecho (#16)
+- [x] **F-05** Consejos inteligentes (motor de reglas + semáforo) — ✅ hecho
+- [ ] **F-13** Gráficos en Finanzas (dona + tendencia) — *requiere recharts* ← SIGUIENTE
 - [ ] **F-07** Tareas recurrentes — *la más pedida en todo apps*
 
 ### 🟡 P2 — siguiente

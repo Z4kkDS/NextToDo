@@ -7,6 +7,7 @@ import { getTaskExpenses } from "@/lib/task-finance";
 import { useMemo } from "react";
 import { BalanceSummary } from "./BalanceSummary";
 import { ExpenseSection } from "./ExpenseSection";
+import { FinanceAdvice } from "./FinanceAdvice";
 import { IncomeSection } from "./IncomeSection";
 import { MonthSelector } from "./MonthSelector";
 import { Rule503020 } from "./Rule503020";
@@ -56,6 +57,7 @@ export function FinancePanel() {
               <TaskExpensesSection month={month} />
             </div>
             <div className="space-y-6">
+              <FinanceAdvice budget={budget} />
               <Rule503020 budget={budget} />
               <SavingsGoals />
             </div>
