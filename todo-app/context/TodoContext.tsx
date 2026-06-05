@@ -1,6 +1,7 @@
 "use client";
 
 import { LocalTodoService } from "@/lib/localTodoService";
+import { buildNextOccurrence, isRecurring } from "@/lib/recurrence";
 import { TodoService } from "@/lib/todoService";
 import { NewTodoInput, Todo, TodoContextType, TodoFilter, TodoSort, UpdateTodoInput } from "@/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
@@ -68,18 +69,22 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     const todo = todos.find((t) => t.id === id);
     if (!todo || !user) return;
 
+    const willComplete = !todo.completed;
+
     try {
       // Si es usuario local, usar LocalTodoService
       if ("isLocal" in user && user.isLocal) {
-        LocalTodoService.toggleTodo(user.uid, id, !todo.completed);
-        // Recargar todos locales
-        const updatedTodos = LocalTodoService.getTodos(user.uid);
-        setTodos(updatedTodos);
-        return;
+        LocalTodoService.toggleTodo(user.uid, id, willComplete);
+        setTodos(LocalTodoService.getTodos(user.uid));
+      } else {
+        // Si es usuario de Firebase, usar TodoService
+        await TodoService.toggleTodo(id, willComplete);
       }
 
-      // Si es usuario de Firebase, usar TodoService
-      await TodoService.toggleTodo(id, !todo.completed);
+      // Si se completó una tarea recurrente, generar la siguiente ocurrencia.
+      if (willComplete && isRecurring(todo)) {
+        await addTodo(buildNextOccurrence(todo));
+      }
     } catch (error) {
       console.error("Error toggling todo:", error);
     }

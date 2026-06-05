@@ -15,11 +15,16 @@ export interface Todo {
   amount?: number;
   /** Categoría de gasto a la que se imputa el monto (default "cuentas"). */
   expenseCategory?: ExpenseCategory;
+  /** Si la tarea se repite, al completarla se genera la siguiente ocurrencia. */
+  recurrence?: TodoRecurrence;
 }
 
 export type TodoFilter = "all" | "active" | "completed" | "overdue";
 
 export type TodoSort = "created" | "dueDate" | "priority" | "alphabetical";
+
+/** Frecuencia de repetición de una tarea. "none" = no se repite. */
+export type TodoRecurrence = "none" | "daily" | "weekly" | "monthly";
 
 export interface NewTodoInput {
   text: string;
@@ -29,6 +34,7 @@ export interface NewTodoInput {
   tags?: string[];
   amount?: number;
   expenseCategory?: ExpenseCategory;
+  recurrence?: TodoRecurrence;
 }
 
 export interface UpdateTodoInput {
@@ -40,6 +46,7 @@ export interface UpdateTodoInput {
   tags?: string[];
   amount?: number;
   expenseCategory?: ExpenseCategory;
+  recurrence?: TodoRecurrence;
 }
 
 export interface TodoContextType {

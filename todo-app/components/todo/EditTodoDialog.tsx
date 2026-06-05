@@ -22,7 +22,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useTodo } from "@/context/TodoContext";
-import { Todo, UpdateTodoInput } from "@/types";
+import { RECURRENCE_OPTIONS } from "@/lib/recurrence";
+import { Todo, TodoRecurrence, UpdateTodoInput } from "@/types";
 import { ExpenseCategory } from "@/types/finance";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -48,6 +49,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
   const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>(
     todo.expenseCategory ?? "cuentas"
   );
+  const [recurrence, setRecurrence] = useState<TodoRecurrence>(todo.recurrence ?? "none");
   const { updateTodo } = useTodo();
 
   // Actualizar el estado cuando cambie el todo
@@ -60,6 +62,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setTags(todo.tags ?? []);
     setAmount(todo.amount);
     setExpenseCategory(todo.expenseCategory ?? "cuentas");
+    setRecurrence(todo.recurrence ?? "none");
   }, [todo]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -79,6 +82,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
       // Si se quita el monto, lo ponemos en 0 para limpiar el gasto.
       amount: hasAmount ? amount : 0,
       expenseCategory,
+      recurrence,
       ...(description?.trim() && { description: description.trim() }),
       ...(dueDate && { dueDate }),
     };
@@ -99,6 +103,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setTags(todo.tags ?? []);
     setAmount(todo.amount);
     setExpenseCategory(todo.expenseCategory ?? "cuentas");
+    setRecurrence(todo.recurrence ?? "none");
     onOpenChange(false);
   };
 
@@ -161,6 +166,21 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
             <div className="space-y-2">
               <Label>Fecha de vencimiento (opcional)</Label>
               <DateTimePicker date={dueDate} setDate={setDueDate} />
+            </div>
+            <div className="space-y-2">
+              <Label>Repetición</Label>
+              <Select value={recurrence} onValueChange={(v) => setRecurrence(v as TodoRecurrence)}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RECURRENCE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value} className="cursor-pointer">
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-tags">Etiquetas (opcional)</Label>

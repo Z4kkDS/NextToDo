@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useTodo } from "@/context/TodoContext";
+import { RECURRENCE_OPTIONS } from "@/lib/recurrence";
+import { TodoRecurrence } from "@/types";
 import { ExpenseCategory } from "@/types/finance";
 import { Plus } from "lucide-react";
 import { useState } from "react";
@@ -45,6 +47,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
   const [tags, setTags] = useState<string[]>([]);
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>("cuentas");
+  const [recurrence, setRecurrence] = useState<TodoRecurrence>("none");
   const { addTodo } = useTodo();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -60,6 +63,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
       ...(dueDate && { dueDate }),
       ...(tags.length > 0 && { tags }),
       ...(hasAmount && { amount, expenseCategory }),
+      ...(recurrence !== "none" && { recurrence }),
     });
 
     setOpen(false);
@@ -70,6 +74,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
     setTags([]);
     setAmount(undefined);
     setExpenseCategory("cuentas");
+    setRecurrence("none");
     toast.success("Tarea creada correctamente", {
       id: "create-todo",
       duration: 2000,
@@ -127,6 +132,26 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Repetición</Label>
+              <Select value={recurrence} onValueChange={(v) => setRecurrence(v as TodoRecurrence)}>
+                <SelectTrigger className="cursor-pointer">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {RECURRENCE_OPTIONS.map((o) => (
+                    <SelectItem key={o.value} value={o.value} className="cursor-pointer">
+                      {o.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {recurrence !== "none" && (
+                <p className="text-xs text-muted-foreground">
+                  Al completarla se creará automáticamente la siguiente.
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="create-tags">Etiquetas (opcional)</Label>
