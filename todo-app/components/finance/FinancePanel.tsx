@@ -2,15 +2,22 @@
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFinance } from "@/context/FinanceContext";
+import { useTodo } from "@/context/TodoContext";
+import { getTaskExpenses } from "@/lib/task-finance";
+import { useMemo } from "react";
 import { BalanceSummary } from "./BalanceSummary";
 import { ExpenseSection } from "./ExpenseSection";
 import { IncomeSection } from "./IncomeSection";
 import { MonthSelector } from "./MonthSelector";
 import { Rule503020 } from "./Rule503020";
 import { SavingsGoals } from "./SavingsGoals";
+import { TaskExpensesSection } from "./TaskExpensesSection";
 
 export function FinancePanel() {
-  const { budget, loading } = useFinance();
+  const { budget, loading, month } = useFinance();
+  const { todos } = useTodo();
+
+  const taskExpenses = useMemo(() => getTaskExpenses(todos, month), [todos, month]);
 
   return (
     <div className="space-y-6">
@@ -36,12 +43,17 @@ export function FinancePanel() {
         </div>
       ) : (
         <>
-          <BalanceSummary budget={budget} />
+          <BalanceSummary
+            budget={budget}
+            taskSpent={taskExpenses.spent}
+            taskPlanned={taskExpenses.planned}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="space-y-6">
               <IncomeSection />
               <ExpenseSection />
+              <TaskExpensesSection month={month} />
             </div>
             <div className="space-y-6">
               <Rule503020 budget={budget} />

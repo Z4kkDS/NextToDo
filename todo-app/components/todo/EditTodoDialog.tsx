@@ -23,9 +23,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useTodo } from "@/context/TodoContext";
 import { Todo, UpdateTodoInput } from "@/types";
+import { ExpenseCategory } from "@/types/finance";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TagInput } from "./TagInput";
+import { TaskCostFields } from "./TaskCostFields";
 
 interface EditTodoDialogProps {
   todo: Todo;
@@ -42,6 +44,10 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
   const [priority, setPriority] = useState(todo.priority);
   const [completed, setCompleted] = useState(todo.completed);
   const [tags, setTags] = useState<string[]>(todo.tags ?? []);
+  const [amount, setAmount] = useState<number | undefined>(todo.amount);
+  const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>(
+    todo.expenseCategory ?? "cuentas"
+  );
   const { updateTodo } = useTodo();
 
   // Actualizar el estado cuando cambie el todo
@@ -52,6 +58,8 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setPriority(todo.priority);
     setCompleted(todo.completed);
     setTags(todo.tags ?? []);
+    setAmount(todo.amount);
+    setExpenseCategory(todo.expenseCategory ?? "cuentas");
   }, [todo]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -61,11 +69,16 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
       return;
     }
 
+    const hasAmount = typeof amount === "number" && amount > 0;
+
     const updateData: UpdateTodoInput = {
       text: title.trim(),
       priority: priority as "baja" | "media" | "alta",
       completed,
       tags,
+      // Si se quita el monto, lo ponemos en 0 para limpiar el gasto.
+      amount: hasAmount ? amount : 0,
+      expenseCategory,
       ...(description?.trim() && { description: description.trim() }),
       ...(dueDate && { dueDate }),
     };
@@ -84,6 +97,8 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setPriority(todo.priority);
     setCompleted(todo.completed);
     setTags(todo.tags ?? []);
+    setAmount(todo.amount);
+    setExpenseCategory(todo.expenseCategory ?? "cuentas");
     onOpenChange(false);
   };
 
@@ -151,6 +166,13 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
               <Label htmlFor="edit-tags">Etiquetas (opcional)</Label>
               <TagInput id="edit-tags" tags={tags} onChange={setTags} />
             </div>
+            <TaskCostFields
+              idPrefix="edit"
+              amount={amount}
+              onAmountChange={setAmount}
+              category={expenseCategory}
+              onCategoryChange={setExpenseCategory}
+            />
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleCancel}>
