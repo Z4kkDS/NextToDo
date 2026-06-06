@@ -10,6 +10,7 @@ import { ExpenseSection } from "./ExpenseSection";
 import { FinanceAdvice } from "./FinanceAdvice";
 import { FinanceCharts } from "./FinanceCharts";
 import { IncomeSection } from "./IncomeSection";
+import { MonthProjection } from "./MonthProjection";
 import { MonthSelector } from "./MonthSelector";
 import { Rule503020 } from "./Rule503020";
 import { SavingsGoals } from "./SavingsGoals";
@@ -61,6 +62,7 @@ export function FinancePanel() {
             </div>
             <div className="space-y-6">
               <FinanceAdvice budget={budget} />
+              <MonthProjection budget={budget} />
               <Rule503020 budget={budget} />
               <SavingsGoals />
             </div>

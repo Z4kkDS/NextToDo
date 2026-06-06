@@ -80,6 +80,43 @@ export function savingsRate(budget: MonthBudget): number {
   return Math.round((availableBalance(budget) / income) * 100);
 }
 
+export interface MonthProjection {
+  income: number;
+  spent: number;
+  /** Lo planificado en el presupuesto aún no gastado. */
+  plannedRemaining: number;
+  /** Tareas-gasto pendientes (con monto). */
+  tasksPending: number;
+  /** Total de compromisos pendientes = plannedRemaining + tasksPending. */
+  committed: number;
+  /** Saldo proyectado si se cumplen todos los compromisos del mes. */
+  projectedBalance: number;
+}
+
+/**
+ * Proyección de fin de mes: cuánto saldo quedaría si se gasta lo ya gastado
+ * más todos los compromisos pendientes (presupuesto planificado no gastado +
+ * tareas pendientes con monto).
+ */
+export function projectMonthEnd(
+  budget: MonthBudget,
+  taskSpent: number,
+  taskPending: number
+): MonthProjection {
+  const income = totalIncome(budget.incomes);
+  const spent = totalSpent(budget.expenses) + taskSpent;
+  const plannedRemaining = Math.max(0, totalPlanned(budget.expenses) - totalSpent(budget.expenses));
+  const committed = plannedRemaining + taskPending;
+  return {
+    income,
+    spent,
+    plannedRemaining,
+    tasksPending: taskPending,
+    committed,
+    projectedBalance: income - spent - committed,
+  };
+}
+
 // ── Regla 50/30/20 ──────────────────────────────────────────────────────
 // Mapea cada categoría de gasto a un bucket de la regla.
 type Bucket = "needs" | "wants" | "savings";
