@@ -19,13 +19,14 @@
 | F-05 | Consejos inteligentes (motor de reglas + semáforo) | #17 |
 | F-13 | Gráficos en Finanzas (dona + tendencia) | #18 |
 | F-07 | Tareas recurrentes | #19 |
-| F-08 | Subtareas / checklist | PR pendiente |
+| F-08 | Subtareas / checklist | #20 |
+| F-10 | Command palette ⌘K | PR pendiente |
 
 ---
 
 ## 🔄 En curso
 
-_Ninguna feature en curso. Siguiente P2: F-10 (⌘K) / F-11 (PWA) / F-14 (proyección)._
+_Ninguna feature en curso. Siguiente P2: F-11 (PWA instalable + offline)._
 
 ---
 
@@ -43,9 +44,9 @@ Priorizado en sesión 2026-06-05.
 - [~] **F-02** Gastos recurrentes → recordatorios — *cubierto por F-01+F-07*
   (una tarea recurrente con monto ya es un recordatorio de gasto). Descartado
   salvo que se pida el puente inverso (gasto del presupuesto → tarea).
-- [x] **F-08** Subtareas / checklist — ✅ hecho
-- [ ] **F-10** Command palette ⌘K
-- [ ] **F-11** PWA instalable + offline
+- [x] **F-08** Subtareas / checklist — ✅ hecho (#20)
+- [x] **F-10** Command palette ⌘K — ✅ hecho
+- [ ] **F-11** PWA instalable + offline ← SIGUIENTE
 - [ ] **F-14** Proyección fin de mes + comparación mensual
 
 ### 🟢 P3 — más adelante / requieren decisión
