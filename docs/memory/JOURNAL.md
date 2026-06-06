@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-06-06 · PWA: el service worker NO debe interceptar auth/Firestore
+
+**Contexto:** al añadir el PWA (F-11), el riesgo es que el service worker cachee
+o intercepte el flujo de Google Auth (popup en `*.firebaseapp.com`/`google.com`)
+o el tráfico de Firestore (`*.googleapis.com`), rompiendo login y sincronización.
+
+**Regla aplicada en `public/sw.js`:** el `fetch` handler solo interviene
+peticiones **GET del mismo origen** y además ignora `/__/auth`. Todo lo
+cross-origin pasa directo a la red, sin tocar. Así el login con Google y la
+sincronización en tiempo real siguen funcionando con la app instalada.
+
+**Si en el futuro el login falla dentro de la PWA instalada:** revisar primero
+que el SW no esté interceptando esas rutas, y recordar que el dominio del deploy
+debe estar en Firebase → Authorized domains (ver entrada del 2026-06-04).
+
+---
+
 ## 2026-06-05 · recharts 3: el `formatter` del Tooltip no acepta `(value: number)`
 
 **Síntoma:** `next build` fallaba con *"Type '(value: number) => string' is not
