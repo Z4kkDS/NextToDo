@@ -11,9 +11,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useTodo } from "@/context/TodoContext";
 import { useMemo, useState } from "react";
 
-export function TasksView() {
+interface TasksViewProps {
+  createOpen?: boolean;
+  onCreateOpenChange?: (open: boolean) => void;
+}
+
+export function TasksView({ createOpen: controlledOpen, onCreateOpenChange }: TasksViewProps = {}) {
   const { todos, loading: todosLoading } = useTodo();
-  const [createOpen, setCreateOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const createOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setCreateOpen = onCreateOpenChange ?? setInternalOpen;
 
   const pendingCount = useMemo(() => todos.filter((t) => !t.completed).length, [todos]);
 
