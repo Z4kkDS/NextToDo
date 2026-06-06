@@ -8,6 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { InstallButton } from "@/components/pwa/InstallButton";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useAuth } from "@/context/AuthContext";
 import { useOnboarding } from "@/context/OnboardingContext";
@@ -37,6 +38,7 @@ export function UserHeader() {
 
         {/* Acciones */}
         <div className="flex items-center gap-1.5">
+          <InstallButton />
           <ThemeToggle />
 
           <DropdownMenu>

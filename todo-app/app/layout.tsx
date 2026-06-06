@@ -1,10 +1,11 @@
 import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { FinanceProvider } from "@/context/FinanceContext";
 import { OnboardingProvider } from "@/context/OnboardingContext";
 import { TodoProvider } from "@/context/TodoContext";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -23,13 +24,30 @@ export const metadata: Metadata = {
   title: "NexToDo - Gestión de Tareas Inteligente",
   description:
     "Organiza y optimiza tus tareas con NexToDo. Aplicación moderna con autenticación, prioridades, estadísticas y sincronización en tiempo real.",
-  keywords: ["todo", "tareas", "productividad", "Next.js", "Firebase"],
+  keywords: ["todo", "tareas", "productividad", "finanzas", "Next.js", "Firebase"],
   authors: [{ name: "ZakkDev" }],
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "NexToDo",
+  },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/icon.svg",
+  },
   openGraph: {
     title: "NexToDo - Gestión de Tareas",
     description: "Organiza tus tareas de manera inteligente y productiva",
     type: "website",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#6366f1" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+  ],
 };
 
 export default function RootLayout({
@@ -53,6 +71,7 @@ export default function RootLayout({
                   {children}
                   <OnboardingTour />
                   <Toaster />
+                  <ServiceWorkerRegister />
                 </OnboardingProvider>
               </FinanceProvider>
             </TodoProvider>
