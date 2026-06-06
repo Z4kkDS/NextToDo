@@ -21,13 +21,14 @@
 | F-07 | Tareas recurrentes | #19 |
 | F-08 | Subtareas / checklist | #20 |
 | F-10 | Command palette ⌘K | #21 |
-| F-11 | PWA instalable + offline | PR pendiente |
+| F-11 | PWA instalable + offline | #22 |
+| F-14 | Proyección fin de mes + comparación mensual | PR pendiente |
 
 ---
 
 ## 🔄 En curso
 
-_Ninguna feature en curso. Único P2 restante: F-14 (proyección + comparación mensual)._
+_Ninguna feature en curso. **🎉 P1 y P2 completados.** Quedan solo P3 (opcionales)._
 
 ---
 
@@ -47,8 +48,8 @@ Priorizado en sesión 2026-06-05.
   salvo que se pida el puente inverso (gasto del presupuesto → tarea).
 - [x] **F-08** Subtareas / checklist — ✅ hecho (#20)
 - [x] **F-10** Command palette ⌘K — ✅ hecho (#21)
-- [x] **F-11** PWA instalable + offline — ✅ hecho
-- [ ] **F-14** Proyección fin de mes + comparación mensual ← último P2
+- [x] **F-11** PWA instalable + offline — ✅ hecho (#22)
+- [x] **F-14** Proyección fin de mes + comparación mensual — ✅ hecho
 
 ### 🟢 P3 — más adelante / requieren decisión
 - [ ] **F-04** Asistente con Claude API (requiere API key + coste)
