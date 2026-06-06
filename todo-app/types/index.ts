@@ -17,6 +17,8 @@ export interface Todo {
   expenseCategory?: ExpenseCategory;
   /** Si la tarea se repite, al completarla se genera la siguiente ocurrencia. */
   recurrence?: TodoRecurrence;
+  /** Checklist de sub-pasos. */
+  subtasks?: Subtask[];
 }
 
 export type TodoFilter = "all" | "active" | "completed" | "overdue";
@@ -25,6 +27,13 @@ export type TodoSort = "created" | "dueDate" | "priority" | "alphabetical";
 
 /** Frecuencia de repetición de una tarea. "none" = no se repite. */
 export type TodoRecurrence = "none" | "daily" | "weekly" | "monthly";
+
+/** Sub-paso dentro de una tarea (checklist). */
+export interface Subtask {
+  id: string;
+  text: string;
+  done: boolean;
+}
 
 export interface NewTodoInput {
   text: string;
@@ -35,6 +44,7 @@ export interface NewTodoInput {
   amount?: number;
   expenseCategory?: ExpenseCategory;
   recurrence?: TodoRecurrence;
+  subtasks?: Subtask[];
 }
 
 export interface UpdateTodoInput {
@@ -47,6 +57,7 @@ export interface UpdateTodoInput {
   amount?: number;
   expenseCategory?: ExpenseCategory;
   recurrence?: TodoRecurrence;
+  subtasks?: Subtask[];
 }
 
 export interface TodoContextType {

@@ -4,14 +4,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Progress } from "@/components/ui/progress";
 import { useTodo } from "@/context/TodoContext";
 import { formatCLP } from "@/lib/finance-utils";
 import { getPriorityLabel, getPriorityVariant, isDueSoon, isPastDue } from "@/lib/priority-utils";
 import { isRecurring, recurrenceLabel } from "@/lib/recurrence";
+import { hasSubtasks, subtaskProgress } from "@/lib/subtasks";
 import { getTagColor } from "@/lib/todo-utils";
 import { cn } from "@/lib/utils";
 import { Todo } from "@/types";
-import { AlertCircle, Calendar, CheckCircle2, Clock, Edit2, Repeat, RotateCcw, Tag, Trash2, Wallet } from "lucide-react";
+import { AlertCircle, Calendar, CheckCircle2, ChevronDown, Clock, Edit2, ListChecks, Repeat, RotateCcw, Tag, Trash2, Wallet } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EditTodoDialog } from "./EditTodoDialog";
@@ -27,8 +29,18 @@ const PRIORITY_BAR: Record<string, string> = {
 };
 
 export function TodoItem({ todo }: TodoItemProps) {
-  const { toggleTodo, deleteTodo, setTagFilter } = useTodo();
+  const { toggleTodo, deleteTodo, updateTodo, setTagFilter } = useTodo();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [showSubtasks, setShowSubtasks] = useState(false);
+
+  const progress = subtaskProgress(todo);
+
+  const toggleSubtask = (subId: string) => {
+    const next = (todo.subtasks ?? []).map((s) =>
+      s.id === subId ? { ...s, done: !s.done } : s
+    );
+    updateTodo(todo.id, { subtasks: next });
+  };
 
   const handleDelete = () => {
     deleteTodo(todo.id);
@@ -156,6 +168,52 @@ export function TodoItem({ todo }: TodoItemProps) {
                             {tag}
                           </button>
                         ))}
+                      </div>
+                    )}
+
+                    {/* Subtareas: progreso + checklist expandible */}
+                    {hasSubtasks(todo) && (
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => setShowSubtasks((v) => !v)}
+                          className="flex items-center gap-2 w-full text-left cursor-pointer group"
+                          aria-expanded={showSubtasks}
+                        >
+                          <ListChecks className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          <Progress value={progress.pct} className="h-1.5 flex-1" />
+                          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+                            {progress.done}/{progress.total}
+                          </span>
+                          <ChevronDown
+                            className={cn(
+                              "h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform",
+                              showSubtasks && "rotate-180"
+                            )}
+                          />
+                        </button>
+
+                        {showSubtasks && (
+                          <ul className="space-y-1.5 pl-1">
+                            {(todo.subtasks ?? []).map((s) => (
+                              <li key={s.id} className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={s.done}
+                                  onCheckedChange={() => toggleSubtask(s.id)}
+                                  className="shrink-0 h-3.5 w-3.5"
+                                />
+                                <span
+                                  className={cn(
+                                    "text-sm",
+                                    s.done && "line-through text-muted-foreground"
+                                  )}
+                                >
+                                  {s.text}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                     )}
 

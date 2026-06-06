@@ -23,10 +23,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useTodo } from "@/context/TodoContext";
 import { RECURRENCE_OPTIONS } from "@/lib/recurrence";
-import { Todo, TodoRecurrence, UpdateTodoInput } from "@/types";
+import { Subtask, Todo, TodoRecurrence, UpdateTodoInput } from "@/types";
 import { ExpenseCategory } from "@/types/finance";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { SubtaskEditor } from "./SubtaskEditor";
 import { TagInput } from "./TagInput";
 import { TaskCostFields } from "./TaskCostFields";
 
@@ -50,6 +51,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     todo.expenseCategory ?? "cuentas"
   );
   const [recurrence, setRecurrence] = useState<TodoRecurrence>(todo.recurrence ?? "none");
+  const [subtasks, setSubtasks] = useState<Subtask[]>(todo.subtasks ?? []);
   const { updateTodo } = useTodo();
 
   // Actualizar el estado cuando cambie el todo
@@ -63,6 +65,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setAmount(todo.amount);
     setExpenseCategory(todo.expenseCategory ?? "cuentas");
     setRecurrence(todo.recurrence ?? "none");
+    setSubtasks(todo.subtasks ?? []);
   }, [todo]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,6 +86,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
       amount: hasAmount ? amount : 0,
       expenseCategory,
       recurrence,
+      subtasks,
       ...(description?.trim() && { description: description.trim() }),
       ...(dueDate && { dueDate }),
     };
@@ -104,6 +108,7 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
     setAmount(todo.amount);
     setExpenseCategory(todo.expenseCategory ?? "cuentas");
     setRecurrence(todo.recurrence ?? "none");
+    setSubtasks(todo.subtasks ?? []);
     onOpenChange(false);
   };
 
@@ -181,6 +186,10 @@ export function EditTodoDialog({ todo, open, onOpenChange }: EditTodoDialogProps
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Subtareas (opcional)</Label>
+              <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-tags">Etiquetas (opcional)</Label>

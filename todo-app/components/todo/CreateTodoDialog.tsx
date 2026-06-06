@@ -23,11 +23,12 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { useTodo } from "@/context/TodoContext";
 import { RECURRENCE_OPTIONS } from "@/lib/recurrence";
-import { TodoRecurrence } from "@/types";
+import { Subtask, TodoRecurrence } from "@/types";
 import { ExpenseCategory } from "@/types/finance";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SubtaskEditor } from "./SubtaskEditor";
 import { TagInput } from "./TagInput";
 import { TaskCostFields } from "./TaskCostFields";
 
@@ -48,6 +49,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
   const [amount, setAmount] = useState<number | undefined>(undefined);
   const [expenseCategory, setExpenseCategory] = useState<ExpenseCategory>("cuentas");
   const [recurrence, setRecurrence] = useState<TodoRecurrence>("none");
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const { addTodo } = useTodo();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -64,6 +66,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
       ...(tags.length > 0 && { tags }),
       ...(hasAmount && { amount, expenseCategory }),
       ...(recurrence !== "none" && { recurrence }),
+      ...(subtasks.length > 0 && { subtasks }),
     });
 
     setOpen(false);
@@ -75,6 +78,7 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
     setAmount(undefined);
     setExpenseCategory("cuentas");
     setRecurrence("none");
+    setSubtasks([]);
     toast.success("Tarea creada correctamente", {
       id: "create-todo",
       duration: 2000,
@@ -152,6 +156,10 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
                   Al completarla se creará automáticamente la siguiente.
                 </p>
               )}
+            </div>
+            <div className="space-y-2">
+              <Label>Subtareas (opcional)</Label>
+              <SubtaskEditor subtasks={subtasks} onChange={setSubtasks} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="create-tags">Etiquetas (opcional)</Label>
