@@ -12,7 +12,7 @@
 |-----|----------|
 | **Gamificación** | Sutil y motivacional: XP/puntos al completar, niveles ligeros, rachas mejoradas, micro-celebraciones. Nunca distrae del trabajo. |
 | **Estilo visual** | **Retro + playful** (Pixel Art moderno). **CERO emojis** — iconos pixel-art en SVG. |
-| **Iconos** | Librería pixel-art SVG. Candidata: **Pixelarticons** (~480 iconos, MIT). ⚠️ Confirmar con el usuario si tenía otra en mente. |
+| **Iconos** | **Pixelarticons** (~480 iconos, MIT) — confirmado. https://pixelarticons.com/ · npm `pixelarticons` (SVGs) o `@pixelarticons/react`. |
 | **Paleta** | Base **naranja + grises cálidos**, con un dorado/ámbar para recompensas. Abierto a afinar. |
 | **Layout** | **Bento grid compacto**: módulos en cuadrícula de distinto tamaño, todo de un vistazo, mínimo scroll. |
 | **Legibilidad** | Prioridad alta. Fuente pixel SOLO en títulos/acentos/números; cuerpo en sans limpia. |
@@ -141,11 +141,22 @@ Entrega mockups para escritorio y móvil, en modo claro y oscuro.
 
 ---
 
-## 8. Plan de implementación (cuando se apruebe el diseño)
+## 8. Plan de implementación (flujo elegido: A → mockups en Claude Design, luego implementar)
 
-1. **Tokens + tipografía**: nueva paleta naranja/gris en `globals.css` (light+dark),
-   cargar fuente pixel, instalar librería de iconos pixel.
-2. **Reskin de componentes** existentes a la nueva paleta/estilo (sin cambiar lógica).
-3. **Layout bento** en dashboard de Tareas y en Finanzas.
-4. **Capa de gamificación** (XP/niveles/celebraciones) — entrega separada.
-5. Verificar contraste, reduced-motion, responsive y `next build`.
+Cuando lleguen los mockups, implementar por fases (PR por fase, revisando cada una):
+
+- **Fase 0 — Fundaciones**: instalar `pixelarticons` + fuente pixel (Pixelify Sans);
+  crear un `PixelIcon` wrapper y tokens de color nuevos en `globals.css` (light+dark).
+  Sin cambios visuales aún salvo tipografía base.
+- **Fase 1 — Reskin global**: aplicar la paleta naranja/gris a botones, tarjetas,
+  badges, inputs; reemplazar iconos lucide por pixelarticons; títulos en fuente pixel.
+  Sin tocar lógica.
+- **Fase 2 — Layout bento (Tareas)**: reorganizar el dashboard de tareas en bento.
+- **Fase 3 — Layout bento (Finanzas)**: reorganizar el panel de finanzas en bento.
+- **Fase 4 — Gamificación**: capa de XP/niveles/racha + micro-celebraciones (feature
+  nueva, persistencia dual).
+- En cada fase: contraste AA, `prefers-reduced-motion`, responsive (375/768/1024/1440)
+  y `next build` en verde.
+
+> Los mockups de Claude Design mandan sobre los detalles visuales; este brief fija
+> la dirección y las restricciones.
