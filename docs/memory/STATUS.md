@@ -1,7 +1,7 @@
 # 📊 Estado del proyecto
 
 > Tablero único de verdad. IDs referencian `../SPECS.md`.
-> Última actualización: 2026-06-05 · `main` en commit `699fbc1`.
+> Última actualización: 2026-06-06 · `main` en commit `8910a39`.
 
 ---
 
@@ -22,13 +22,17 @@
 | F-08 | Subtareas / checklist | #20 |
 | F-10 | Command palette ⌘K | #21 |
 | F-11 | PWA instalable + offline | #22 |
-| F-14 | Proyección fin de mes + comparación mensual | PR pendiente |
+| F-14 | Proyección fin de mes + comparación mensual | #23 |
 
 ---
 
 ## 🔄 En curso
 
-_Ninguna feature en curso. **🎉 P1 y P2 completados.** Quedan solo P3 (opcionales)._
+**Rediseño visual de la UI** (no es una feature del catálogo): estilo gamificado
+único, nueva paleta de colores, reorganización de elementos para que sea
+ordenado, intuitivo y con menos scroll. En fase de definición de dirección de
+diseño (ver `DESIGN-BRIEF.md` cuando exista). Pausamos features nuevas hasta
+acordar el diseño.
 
 ---
 
@@ -49,15 +53,17 @@ Priorizado en sesión 2026-06-05.
 - [x] **F-08** Subtareas / checklist — ✅ hecho (#20)
 - [x] **F-10** Command palette ⌘K — ✅ hecho (#21)
 - [x] **F-11** PWA instalable + offline — ✅ hecho (#22)
-- [x] **F-14** Proyección fin de mes + comparación mensual — ✅ hecho
+- [x] **F-14** Proyección fin de mes + comparación mensual — ✅ hecho (#23)
 
-### 🟢 P3 — más adelante / requieren decisión
-- [ ] **F-04** Asistente con Claude API (requiere API key + coste)
+### 🟢 P3 — PENDIENTE PARA FUTUROS UPDATES (no en alcance actual)
+> Decisión 2026-06-06: P1 y P2 están completos. El P3 queda **congelado**
+> hasta después del rediseño visual. Retomar cuando el usuario lo pida.
+- [ ] **F-04** Asistente con Claude API (requiere API key + coste) — el "wow" de IA
 - [ ] **F-03** Metas híbridas (ahorro + proyecto)
-- [ ] **F-06** Resumen "Wrapped" mensual/anual
+- [ ] **F-06** Resumen "Wrapped" mensual/anual — muy compartible
 - [ ] **F-09** Vista Hoy / próximos 7 días
-- [ ] **F-12** Notificaciones push
-- [ ] **F-15** Exportar / importar JSON-CSV
+- [ ] **F-12** Notificaciones push (encaja con el PWA ya hecho)
+- [ ] **F-15** Exportar / importar JSON-CSV — red de seguridad de datos
 
 ---
 
