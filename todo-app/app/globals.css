@@ -37,101 +37,159 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* NexToDo design system — exposed to Tailwind utilities */
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-brand: var(--orange);
+  --color-brand-deep: var(--orange-600);
+  --color-brand-soft: var(--orange-100);
+  --color-xp: var(--amber);
+  --color-xp-soft: var(--amber-200);
+  --color-pos: var(--pos);
+  --color-neg: var(--neg);
+  --color-pri-alta: var(--pri-alta);
+  --color-pri-media: var(--pri-media);
+  --color-pri-baja: var(--pri-baja);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ─── LIGHT MODE — Indigo palette (Micro SaaS / Todoist-style) ─────────────
-   Primary: #6366F1 indigo-500  →  oklch(0.541 0.238 270)
-   Background: #F5F3FF violet-50 →  oklch(0.975 0.012 305)
-   Card: #FFFFFF
-   Foreground: #1E1B4B indigo-950 → oklch(0.179 0.072 280)
+/* ─── LIGHT MODE — Warm paper + vibrant orange (NexToDo design) ────────────
+   Background: #FAF7F2 warm paper · Primary: #F97316 orange
+   Ink: #2A2521 warm black · Amber #F59E0B for XP/rewards
    ─────────────────────────────────────────────────────────────────────── */
 :root {
   --radius: 0.75rem;
-  --background: oklch(0.975 0.012 305);
-  --foreground: oklch(0.179 0.072 280);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.179 0.072 280);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.179 0.072 280);
-  /* Primary: indigo-500 #6366F1 */
-  --primary: oklch(0.541 0.238 270);
-  --primary-foreground: oklch(1 0 0);
-  /* Secondary: violet-50 surface */
-  --secondary: oklch(0.951 0.022 293);
-  --secondary-foreground: oklch(0.358 0.149 272);
-  /* Muted: indigo-50 */
-  --muted: oklch(0.961 0.018 285);
-  --muted-foreground: oklch(0.498 0.072 268);
-  /* Accent: indigo-100 */
-  --accent: oklch(0.938 0.038 280);
-  --accent-foreground: oklch(0.358 0.149 272);
-  --destructive: oklch(0.577 0.245 27.325);
-  /* Border: indigo-100 */
-  --border: oklch(0.918 0.048 278);
-  --input: oklch(0.918 0.048 278);
-  /* Ring: indigo-400 */
-  --ring: oklch(0.641 0.224 270);
-  --chart-1: oklch(0.541 0.238 270);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.646 0.222 41.116);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.961 0.025 290);
-  --sidebar-foreground: oklch(0.179 0.072 280);
-  --sidebar-primary: oklch(0.541 0.238 270);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.938 0.038 280);
-  --sidebar-accent-foreground: oklch(0.358 0.149 272);
-  --sidebar-border: oklch(0.918 0.048 278);
-  --sidebar-ring: oklch(0.641 0.224 270);
+
+  /* Brand */
+  --orange: #f97316;
+  --orange-600: #ea6306;
+  --orange-100: #fee9d7;
+  --amber: #f59e0b;
+  --amber-200: #fce3a6;
+
+  /* Priority */
+  --pri-alta: #ef4444;
+  --pri-media: #f59e0b;
+  --pri-baja: #2da8a0;
+
+  /* Finance semantics */
+  --pos: #2f9e6a;
+  --neg: #e0533d;
+  --sema-ok: #2f9e6a;
+  --sema-warn: #f59e0b;
+  --sema-bad: #e0533d;
+
+  /* Surfaces & ink */
+  --surface: #ffffff;
+  --surface-2: #f7f2ea;
+  --surface-3: #efe7da;
+  --ink: #2a2521;
+  --ink-2: #6f665c;
+  --ink-3: #9a9085;
+  --chip-bg: #f3ece1;
+  --primary-ink: #ffffff;
+
+  /* Soft modern elevations */
+  --elev-1: 0 1px 2px rgba(70, 50, 30, 0.05), 0 4px 14px -6px rgba(70, 50, 30, 0.16);
+  --elev-2: 0 2px 6px -2px rgba(70, 50, 30, 0.1), 0 14px 36px -12px rgba(70, 50, 30, 0.2);
+  --elev-primary: 0 2px 10px -1px rgba(234, 99, 6, 0.42);
+
+  /* shadcn vocabulary mapped to the design tokens */
+  --background: #faf7f2;
+  --foreground: #2a2521;
+  --card: #ffffff;
+  --card-foreground: #2a2521;
+  --popover: #ffffff;
+  --popover-foreground: #2a2521;
+  --primary: #f97316;
+  --primary-foreground: #ffffff;
+  --secondary: #f7f2ea;
+  --secondary-foreground: #6f665c;
+  --muted: #f7f2ea;
+  --muted-foreground: #6f665c;
+  --accent: #fee9d7;
+  --accent-foreground: #ea6306;
+  --destructive: #e0533d;
+  --border: #e4d9c8;
+  --input: #e4d9c8;
+  --ring: #f97316;
+  --chart-1: #f97316;
+  --chart-2: #f59e0b;
+  --chart-3: #2da8a0;
+  --chart-4: #7c5cff;
+  --chart-5: #e0533d;
+  --sidebar: #f7f2ea;
+  --sidebar-foreground: #2a2521;
+  --sidebar-primary: #f97316;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fee9d7;
+  --sidebar-accent-foreground: #ea6306;
+  --sidebar-border: #e4d9c8;
+  --sidebar-ring: #f97316;
 }
 
-/* ─── DARK MODE — Deep slate + indigo accent (Linear/Notion-style) ─────────
-   Background: #0F172A slate-900  → oklch(0.149 0.036 264)
-   Card:       #1E293B slate-800  → oklch(0.208 0.042 265)
-   Primary:    #818CF8 indigo-400 → oklch(0.641 0.224 270)  (lighter for contrast)
+/* ─── DARK MODE — Warm black + lifted orange (NexToDo design) ──────────────
+   Background: #161310 warm black · Surface: #221D18
+   Primary: #FB8334 (lighter orange for contrast on dark)
    ─────────────────────────────────────────────────────────────────────── */
 .dark {
-  --background: oklch(0.149 0.036 264);
-  --foreground: oklch(0.96 0.008 265);
-  --card: oklch(0.208 0.042 265);
-  --card-foreground: oklch(0.96 0.008 265);
-  --popover: oklch(0.208 0.042 265);
-  --popover-foreground: oklch(0.96 0.008 265);
-  /* Primary: indigo-400 #818CF8 — más claro para contraste en dark */
-  --primary: oklch(0.641 0.224 270);
-  --primary-foreground: oklch(0.149 0.036 264);
-  /* Secondary: slate-700 */
-  --secondary: oklch(0.279 0.041 260);
-  --secondary-foreground: oklch(0.96 0.008 265);
-  /* Muted: slate-700/800 */
-  --muted: oklch(0.249 0.038 262);
-  --muted-foreground: oklch(0.65 0.04 264);
-  /* Accent: slate-700 */
-  --accent: oklch(0.279 0.041 260);
-  --accent-foreground: oklch(0.96 0.008 265);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 12%);
-  /* Ring: indigo-400 */
-  --ring: oklch(0.641 0.224 270);
-  --chart-1: oklch(0.641 0.224 270);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.176 0.038 264);
-  --sidebar-foreground: oklch(0.96 0.008 265);
-  --sidebar-primary: oklch(0.641 0.224 270);
-  --sidebar-primary-foreground: oklch(0.149 0.036 264);
-  --sidebar-accent: oklch(0.279 0.041 260);
-  --sidebar-accent-foreground: oklch(0.96 0.008 265);
-  --sidebar-border: oklch(1 0 0 / 9%);
-  --sidebar-ring: oklch(0.641 0.224 270);
+  --orange: #fb8334;
+  --orange-600: #ea6306;
+  --orange-100: #3a2517;
+  --amber: #f5a623;
+  --amber-200: #4a3a1a;
+
+  --surface: #221d18;
+  --surface-2: #2a241e;
+  --surface-3: #342c24;
+  --ink: #f6efe4;
+  --ink-2: #bbae9d;
+  --ink-3: #8a7e70;
+  --chip-bg: #2a241e;
+  --primary-ink: #1a1410;
+
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 6px 18px -8px rgba(0, 0, 0, 0.5);
+  --elev-2: 0 4px 12px -2px rgba(0, 0, 0, 0.4), 0 18px 44px -14px rgba(0, 0, 0, 0.62);
+  --elev-primary: 0 2px 12px -1px rgba(251, 131, 52, 0.38);
+
+  --background: #161310;
+  --foreground: #f6efe4;
+  --card: #221d18;
+  --card-foreground: #f6efe4;
+  --popover: #221d18;
+  --popover-foreground: #f6efe4;
+  --primary: #fb8334;
+  --primary-foreground: #1a1410;
+  --secondary: #2a241e;
+  --secondary-foreground: #bbae9d;
+  --muted: #2a241e;
+  --muted-foreground: #bbae9d;
+  --accent: #342c24;
+  --accent-foreground: #fb8334;
+  --destructive: #e0533d;
+  --border: #3a322a;
+  --input: #3a322a;
+  --ring: #fb8334;
+  --chart-1: #fb8334;
+  --chart-2: #f5a623;
+  --chart-3: #2da8a0;
+  --chart-4: #9d85ff;
+  --chart-5: #e0533d;
+  --sidebar: #1f1a15;
+  --sidebar-foreground: #f6efe4;
+  --sidebar-primary: #fb8334;
+  --sidebar-primary-foreground: #1a1410;
+  --sidebar-accent: #342c24;
+  --sidebar-accent-foreground: #fb8334;
+  --sidebar-border: #3a322a;
+  --sidebar-ring: #fb8334;
 }
 
 @layer base {
@@ -140,23 +198,126 @@
   }
   body {
     @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 }
 
+/* ─── Animations ──────────────────────────────────────────────────────────
+   Entrances animate transform only (never opacity) so content is always
+   visible even if animations are paused/throttled (background tabs).
+   ─────────────────────────────────────────────────────────────────────── */
 @keyframes drift {
   0%, 100% { transform: translate(0, 0) scale(1); }
   33%       { transform: translate(4%, 3%) scale(1.04); }
   66%       { transform: translate(-3%, 5%) scale(0.97); }
 }
 
+/* XP bar golden flash on task completion */
+@keyframes xpflash {
+  0%   { filter: brightness(1); }
+  35%  { filter: brightness(1.6) saturate(1.3); }
+  100% { filter: brightness(1); }
+}
+.xp-flash { animation: xpflash 0.7s ease-out; }
+
+/* Gentle pop for the celebration toast */
+@keyframes pixpop {
+  0%   { transform: scale(0.92) translateY(-4px); opacity: 0; }
+  60%  { transform: scale(1.02) translateY(0); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.pix-pop { animation: pixpop 0.26s cubic-bezier(0.2, 0.7, 0.3, 1); }
+
+/* Card entrance — transform only */
+@keyframes rise {
+  from { transform: translateY(12px); }
+  to   { transform: translateY(0); }
+}
+.rise { animation: rise 0.42s ease; }
+
+/* Login rotating-hero entrance — transform only */
+@keyframes hero-enter {
+  from { transform: translateY(16px); }
+  to   { transform: translateY(0); }
+}
+.hero-enter { animation: hero-enter 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+/* Login animated background: floating glyphs + drifting orbs */
+@keyframes lh-float-a { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(16px, -24px); } }
+@keyframes lh-float-b { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, 18px); } }
+@keyframes lh-float-c { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(12px, 20px) rotate(14deg); } }
+@keyframes lh-orb-a { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -26px) scale(1.08); } }
+@keyframes lh-orb-b { 0%, 100% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-28px, 24px) scale(1.1); } }
+.lh-fa { animation: lh-float-a 7s ease-in-out infinite; }
+.lh-fb { animation: lh-float-b 9s ease-in-out infinite; }
+.lh-fc { animation: lh-float-c 8s ease-in-out infinite; }
+.lh-oa { animation: lh-orb-a 15s ease-in-out infinite; }
+.lh-ob { animation: lh-orb-b 19s ease-in-out infinite; }
+
+/* Confetti burst on task completion */
+@keyframes confetti-fall {
+  0%   { transform: translateY(0) rotate(0); opacity: 1; }
+  100% { transform: translateY(var(--cy, 120px)) translateX(var(--cx, 0)) rotate(var(--cr, 180deg)); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xp-flash, .pix-pop, .rise, .hero-enter,
+  .lh-fa, .lh-fb, .lh-fc, .lh-oa, .lh-ob {
+    animation: none;
+  }
+}
+
 @layer utilities {
-  /* Degradado sutil en el fondo del dashboard */
+  /* Display type — bold Geist, tight tracking (brand voice) */
+  .font-display {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  /* Legible data/number type — tabular figures so columns align */
+  .font-num {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+  }
+
+  /* Soft modern elevations */
+  .elev-1 { box-shadow: var(--elev-1); }
+  .elev-2 { box-shadow: var(--elev-2); }
+  .elev-primary { box-shadow: var(--elev-primary); }
+
+  /* Pill chip */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--chip-bg);
+    color: var(--ink-2);
+    border: 1px solid var(--border);
+    line-height: 1.4;
+  }
+
+  /* Subtle warm radial glow behind the dashboard */
   .dashboard-bg {
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.06) 0%, transparent 70%);
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(249, 115, 22, 0.05) 0%, transparent 70%);
   }
   .dark .dashboard-bg {
     background-image:
-      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.08) 0%, transparent 70%);
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 131, 52, 0.07) 0%, transparent 70%);
   }
+}
+
+/* Completed task — strike the title only, soft muted line */
+.task-done .task-title {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--ink-3);
 }

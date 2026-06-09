@@ -1,7 +1,7 @@
 "use client";
 
+import { BentoCard } from "@/components/ui/bento-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useFinance } from "@/context/FinanceContext";
 import { formatCLP } from "@/lib/finance-utils";
-import { Minus, Plus, Target, Trash2 } from "lucide-react";
+import { Check, Minus, PiggyBank, Plus, Target, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -46,17 +47,20 @@ export function SavingsGoals() {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Target className="h-5 w-5 text-primary" />
-          Metas de ahorro
-        </CardTitle>
+    <BentoCard className="rise h-full">
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <SectionLabel icon={PiggyBank} accent="var(--amber)" className="mb-0">
+          METAS DE AHORRO
+        </SectionLabel>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" variant="outline" className="gap-1 cursor-pointer">
-              <Plus className="h-4 w-4" />
-              Nueva meta
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 h-7 px-2 text-xs font-semibold rounded-lg cursor-pointer"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Nueva
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
@@ -93,10 +97,11 @@ export function SavingsGoals() {
             </form>
           </DialogContent>
         </Dialog>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </div>
+
+      <div className="grid gap-[13px]">
         {goals.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-4">
+          <p className="text-[13px] text-ink-3 text-center py-4">
             Crea una meta para empezar a ahorrar con un objetivo claro.
           </p>
         ) : (
@@ -104,35 +109,41 @@ export function SavingsGoals() {
             const pct = goal.target > 0 ? Math.round((goal.saved / goal.target) * 100) : 0;
             const done = goal.saved >= goal.target;
             return (
-              <div key={goal.id} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium flex items-center gap-1.5">
+              <div key={goal.id}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-[30px] h-[30px] rounded-[9px] grid place-items-center bg-xp-soft border border-xp shrink-0">
+                    {done ? (
+                      <Check className="h-4 w-4 text-pos" strokeWidth={2.5} />
+                    ) : (
+                      <Target className="h-4 w-4 text-brand-deep dark:text-brand" strokeWidth={1.8} />
+                    )}
+                  </div>
+                  <span className="text-[13px] font-semibold text-ink flex-1 truncate">
                     {goal.name}
-                    {done && <span className="text-emerald-500">✓</span>}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-muted-foreground hover:text-destructive cursor-pointer"
+                  </span>
+                  <span className="font-num text-[12.5px] text-xp">{pct}%</span>
+                  <button
+                    type="button"
                     onClick={() => {
                       deleteGoal(goal.id);
                       toast.success("Meta eliminada");
                     }}
                     aria-label="Eliminar meta"
+                    className="grid place-items-center h-6 w-6 rounded-md text-ink-3 hover:bg-destructive/10 hover:text-neg transition-colors cursor-pointer"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  </button>
                 </div>
-                <Progress value={pct} className="h-2" />
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground tabular-nums">
-                    {formatCLP(goal.saved)} de {formatCLP(goal.target)} · {pct}%
+                <Progress value={pct} className="h-[7px] bg-surface-3 [&>div]:bg-xp" />
+                <div className="flex items-center justify-between mt-[5px]">
+                  <span className="font-num text-xs text-ink-3">
+                    {formatCLP(goal.saved)} de {formatCLP(goal.target)}
                   </span>
                   <div className="flex items-center gap-1">
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-6 w-6 p-0 cursor-pointer"
+                      className="h-6 w-6 p-0 rounded-md cursor-pointer"
                       onClick={() => adjust(goal.id, goal.saved, goal.target, -10000)}
                       aria-label="Restar 10.000"
                     >
@@ -141,7 +152,7 @@ export function SavingsGoals() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="h-6 w-6 p-0 cursor-pointer"
+                      className="h-6 w-6 p-0 rounded-md cursor-pointer"
                       onClick={() => adjust(goal.id, goal.saved, goal.target, 10000)}
                       aria-label="Sumar 10.000"
                     >
@@ -153,7 +164,7 @@ export function SavingsGoals() {
             );
           })
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </BentoCard>
   );
 }

@@ -1,238 +1,127 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
+import { SectionLabel } from "@/components/ui/section-label";
+import { XP_PER_TASK } from "@/context/GamificationContext";
 import { useTodo } from "@/context/TodoContext";
-import { calculateStreak } from "@/lib/streak";
 import { Todo } from "@/types";
-import {
-  AlertTriangle,
-  BarChart3,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Rocket,
-  Star,
-  Target,
-  TrendingUp,
-  Trophy,
-  Zap,
-} from "lucide-react";
+import { Calendar, CheckCircle2, Gauge, LucideIcon, Trophy, Zap } from "lucide-react";
+import { useMemo } from "react";
 
+const ONE_DAY = 24 * 60 * 60 * 1000;
+
+function dayStart(d: Date): number {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x.getTime();
+}
+
+interface StatTileProps {
+  icon: LucideIcon;
+  value: string;
+  label: string;
+  color: string;
+  sub?: string;
+}
+
+function StatTile({ icon: Icon, value, label, color, sub }: StatTileProps) {
+  return (
+    <div className="bg-surface-2 border rounded-xl py-3 px-[13px] flex flex-col gap-1">
+      <div className="flex items-center gap-[7px]">
+        <Icon className="h-4 w-4 shrink-0" style={{ color }} strokeWidth={1.8} />
+        <span className="text-xs text-ink-2 font-semibold">{label}</span>
+      </div>
+      <span className="font-display text-[26px] text-ink leading-none">{value}</span>
+      {sub && <span className="text-[11.5px] text-ink-3">{sub}</span>}
+    </div>
+  );
+}
+
+const HEAT_SHADES = ["var(--surface-3)", "var(--amber-200)", "#FBBF24", "var(--orange)"];
+const DAY_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
+
+function WeekHeat({ week }: { week: number[] }) {
+  return (
+    <div className="flex gap-1.5 justify-between">
+      {week.map((count, i) => (
+        <div key={i} className="flex flex-col items-center gap-[5px] flex-1">
+          <div
+            className="w-full aspect-square rounded-md border"
+            title={`${count} ${count === 1 ? "tarea" : "tareas"}`}
+            style={{ background: HEAT_SHADES[Math.min(count, 3)] }}
+          />
+          <span className="font-num text-[11px] text-ink-3">{DAY_LABELS[i]}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** Panel de estadísticas del bento: tiles 2×2 + heatmap de los últimos 7 días. */
 export function TodoStats() {
   const { todos } = useTodo();
-  const streak = calculateStreak(todos);
 
-  const stats = {
-    total: todos.length,
-    completed: todos.filter((todo: Todo) => todo.completed).length,
-    pending: todos.filter((todo: Todo) => !todo.completed).length,
-    highPriority: todos.filter((todo: Todo) => todo.priority === "alta" && !todo.completed).length,
-    overdue: todos.filter((todo: Todo) => {
-      if (!todo.dueDate || todo.completed) return false;
-      return new Date(todo.dueDate) < new Date();
-    }).length,
-    dueToday: todos.filter((todo: Todo) => {
-      if (!todo.dueDate || todo.completed) return false;
-      const today = new Date();
-      const dueDate = new Date(todo.dueDate);
-      return dueDate.toDateString() === today.toDateString();
-    }).length,
-  };
+  const stats = useMemo(() => {
+    const today = dayStart(new Date());
+    const weekAgo = today - 6 * ONE_DAY;
 
-  const completionPercentage =
-    stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0;
+    // updatedAt de una completada ≈ fecha en que se completó (no hay completedAt).
+    const completedAt = (t: Todo) => dayStart(new Date(t.updatedAt));
+
+    const completed = todos.filter((t) => t.completed);
+    const doneToday = completed.filter((t) => completedAt(t) === today).length;
+    const weekDone = completed.filter((t) => completedAt(t) >= weekAgo).length;
+    const completion =
+      todos.length > 0 ? Math.round((completed.length / todos.length) * 100) : 0;
+
+    // Mapa de la semana actual (lunes a domingo).
+    const now = new Date();
+    const mondayOffset = (now.getDay() + 6) % 7; // 0 = lunes
+    const monday = today - mondayOffset * ONE_DAY;
+    const week = Array.from({ length: 7 }, (_, i) => {
+      const day = monday + i * ONE_DAY;
+      return completed.filter((t) => completedAt(t) === day).length;
+    });
+
+    return { doneToday, xpToday: doneToday * XP_PER_TASK, weekDone, completion, week };
+  }, [todos]);
 
   return (
-    <div className="space-y-6" data-tour="stats">
-      {/* Progreso General */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Target className="h-5 w-5 text-primary" />
-            Progreso General
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Completado</span>
-            <span className="font-semibold text-primary">{completionPercentage}%</span>
-          </div>
-          <Progress value={completionPercentage} className="h-2" />
-          <div className="text-center text-sm text-muted-foreground">
-            {stats.completed} de {stats.total} tareas
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Racha de productividad */}
-      {streak > 0 && (
-        <Card className="border-orange-200 bg-gradient-to-br from-orange-50 to-transparent dark:border-orange-500/20 dark:from-orange-500/10">
-          <CardContent className="p-5">
-            <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-500/15">
-                <Flame className="h-6 w-6 text-orange-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold leading-none">
-                  {streak} {streak === 1 ? "día" : "días"}
-                </p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {streak === 1
-                    ? "¡Empezaste una racha!"
-                    : "Racha de productividad 🔥"}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Estadísticas Detalladas */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <BarChart3 className="h-5 w-5 text-primary" />
-            Estadísticas
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Total */}
-          <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-slate-500"></div>
-              <span className="text-sm">Total</span>
-            </div>
-            <Badge variant="outline" className="font-semibold">
-              {stats.total}
-            </Badge>
-          </div>
-
-          <Separator />
-
-          {/* Completadas */}
-          <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <span className="text-sm">Completadas</span>
-            </div>
-            <Badge
-              variant="secondary"
-              className="bg-green-100 text-green-700 hover:bg-green-100 font-semibold"
-            >
-              {stats.completed}
-            </Badge>
-          </div>
-
-          {/* Pendientes */}
-          <div className="flex items-center justify-between py-1">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-600" />
-              <span className="text-sm">Pendientes</span>
-            </div>
-            <Badge
-              variant="secondary"
-              className="bg-amber-100 text-amber-700 hover:bg-amber-100 font-semibold"
-            >
-              {stats.pending}
-            </Badge>
-          </div>
-
-          {stats.highPriority > 0 && (
-            <>
-              <Separator />
-
-              {/* Prioridad Alta */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4 text-red-600" />
-                  <span className="text-sm">Prioridad Alta</span>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-red-100 text-red-700 hover:bg-red-100 font-semibold"
-                >
-                  {stats.highPriority}
-                </Badge>
-              </div>
-            </>
-          )}
-
-          {stats.overdue > 0 && (
-            <>
-              <Separator />
-
-              {/* Vencidas */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-red-600" />
-                  <span className="text-sm">Vencidas</span>
-                </div>
-                <Badge variant="destructive" className="font-semibold">
-                  {stats.overdue}
-                </Badge>
-              </div>
-            </>
-          )}
-
-          {stats.dueToday > 0 && (
-            <>
-              <Separator />
-
-              {/* Vencen Hoy */}
-              <div className="flex items-center justify-between py-1">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-orange-600" />
-                  <span className="text-sm">Vencen Hoy</span>
-                </div>
-                <Badge
-                  variant="secondary"
-                  className="bg-orange-100 text-orange-700 hover:bg-orange-100 font-semibold"
-                >
-                  {stats.dueToday}
-                </Badge>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Sugerencias */}
-      {stats.total > 0 && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center space-y-4">
-              <div className="flex justify-center">
-                {completionPercentage === 100 ? (
-                  <Trophy className="h-8 w-8 text-yellow-600" />
-                ) : completionPercentage >= 75 ? (
-                  <Rocket className="h-8 w-8 text-blue-600" />
-                ) : completionPercentage >= 50 ? (
-                  <Zap className="h-8 w-8 text-purple-600" />
-                ) : completionPercentage >= 25 ? (
-                  <TrendingUp className="h-8 w-8 text-green-600" />
-                ) : (
-                  <Star className="h-8 w-8 text-orange-600" />
-                )}
-              </div>
-              <div className="text-sm font-medium text-foreground">
-                {completionPercentage === 100
-                  ? "¡Todas las tareas completadas!"
-                  : completionPercentage >= 75
-                  ? "¡Excelente progreso!"
-                  : completionPercentage >= 50
-                  ? "¡Vas por buen camino!"
-                  : completionPercentage >= 25
-                  ? "Sigue adelante"
-                  : "¡Comienza tu día productivo!"}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+    <div data-tour="stats">
+      <SectionLabel icon={Zap} accent="var(--amber)">
+        PROGRESO DE HOY
+      </SectionLabel>
+      <div className="grid grid-cols-2 gap-2.5 mb-3.5">
+        <StatTile
+          icon={CheckCircle2}
+          value={String(stats.doneToday)}
+          label="Hechas hoy"
+          color="var(--pos)"
+          sub={stats.doneToday > 0 ? "¡Buen ritmo!" : "aún sin completar"}
+        />
+        <StatTile
+          icon={Zap}
+          value={`+${stats.xpToday}`}
+          label="XP de hoy"
+          color="var(--amber)"
+          sub="esta jornada"
+        />
+        <StatTile
+          icon={Trophy}
+          value={String(stats.weekDone)}
+          label="Esta semana"
+          color="var(--orange)"
+          sub="tareas"
+        />
+        <StatTile
+          icon={Gauge}
+          value={`${stats.completion}%`}
+          label="Cumplimiento"
+          color="var(--pri-baja)"
+          sub="del total"
+        />
+      </div>
+      <SectionLabel icon={Calendar}>ÚLTIMOS 7 DÍAS</SectionLabel>
+      <WeekHeat week={stats.week} />
     </div>
   );
 }

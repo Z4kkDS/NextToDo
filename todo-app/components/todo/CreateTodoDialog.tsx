@@ -88,9 +88,12 @@ export function CreateTodoDialog({ open: controlledOpen, onOpenChange }: CreateT
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2" data-tour="create-todo">
-          <Plus className="h-4 w-4" />
-          Nueva Tarea
+        <Button
+          className="gap-1.5 h-[34px] px-3 text-[13px] font-semibold rounded-[10px] elev-primary cursor-pointer"
+          data-tour="create-todo"
+        >
+          <Plus className="h-[15px] w-[15px]" />
+          Nueva
         </Button>
       </DialogTrigger>
       <DialogContent>

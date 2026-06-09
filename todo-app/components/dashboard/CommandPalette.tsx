@@ -68,17 +68,16 @@ export function CommandPalette({ onNewTask, onTab }: CommandPaletteProps) {
 
   return (
     <>
-      {/* Disparador estilo buscador */}
+      {/* Disparador compacto: lupa + ⌘K */}
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 rounded-lg border bg-background px-3 h-9 text-sm text-muted-foreground hover:bg-accent transition-colors cursor-pointer w-full sm:w-64"
+        title="Comandos (⌘K)"
+        aria-label="Abrir paleta de comandos"
+        className="inline-flex items-center gap-2 rounded-xl border bg-surface px-3 h-[42px] text-ink-2 hover:bg-surface-2 transition-colors cursor-pointer elev-1 shrink-0"
       >
-        <Search className="h-4 w-4 shrink-0" />
-        <span className="flex-1 text-left">Buscar o ejecutar…</span>
-        <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border bg-muted px-1.5 text-[10px] font-medium">
-          ⌘K
-        </kbd>
+        <Search className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} />
+        <span className="hidden sm:inline text-xs font-semibold text-ink-3">⌘K</span>
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
