@@ -1,19 +1,24 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import { useGamification } from "@/context/GamificationContext";
 import { useTodo } from "@/context/TodoContext";
 import { formatCLP } from "@/lib/finance-utils";
-import { getPriorityLabel, getPriorityVariant, isDueSoon, isPastDue } from "@/lib/priority-utils";
+import { getPriorityLabel, isDueSoon, isPastDue } from "@/lib/priority-utils";
 import { isRecurring, recurrenceLabel } from "@/lib/recurrence";
 import { hasSubtasks, subtaskProgress } from "@/lib/subtasks";
-import { getTagColor } from "@/lib/todo-utils";
 import { cn } from "@/lib/utils";
 import { Todo } from "@/types";
-import { AlertCircle, Calendar, CheckCircle2, ChevronDown, Clock, Edit2, ListChecks, Repeat, RotateCcw, Tag, Trash2, Wallet } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  Edit2,
+  Repeat,
+  Tag,
+  Trash2,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { EditTodoDialog } from "./EditTodoDialog";
@@ -22,18 +27,39 @@ interface TodoItemProps {
   todo: Todo;
 }
 
-const PRIORITY_BAR: Record<string, string> = {
-  alta: "bg-red-500",
-  media: "bg-amber-400",
-  baja: "bg-emerald-500",
+const PRIORITY_COLOR: Record<string, string> = {
+  alta: "var(--pri-alta)",
+  media: "var(--pri-media)",
+  baja: "var(--pri-baja)",
 };
+
+function dueChip(todo: Todo): { label: string; tone: "today" | "overdue" | "normal" } | null {
+  if (!todo.dueDate) return null;
+  const due = new Date(todo.dueDate);
+  if (!todo.completed && isPastDue(todo.dueDate)) {
+    return {
+      label: `Vencida · ${due.toLocaleDateString("es-ES", { day: "numeric", month: "short" })}`,
+      tone: "overdue",
+    };
+  }
+  if (due.toDateString() === new Date().toDateString()) {
+    return { label: "Hoy", tone: "today" };
+  }
+  return {
+    label: due.toLocaleDateString("es-ES", { day: "numeric", month: "short" }),
+    tone: isDueSoon(todo.dueDate) && !todo.completed ? "today" : "normal",
+  };
+}
 
 export function TodoItem({ todo }: TodoItemProps) {
   const { toggleTodo, deleteTodo, updateTodo, setTagFilter } = useTodo();
+  const { celebrate } = useGamification();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [showSubtasks, setShowSubtasks] = useState(false);
 
   const progress = subtaskProgress(todo);
+  const priColor = PRIORITY_COLOR[todo.priority] ?? "var(--border)";
+  const due = dueChip(todo);
 
   const toggleSubtask = (subId: string) => {
     const next = (todo.subtasks ?? []).map((s) =>
@@ -48,246 +74,213 @@ export function TodoItem({ todo }: TodoItemProps) {
   };
 
   const handleToggle = () => {
-    toggleTodo(todo.id);
     const completing = !todo.completed;
-    const message = completing
-      ? isRecurring(todo)
-        ? "¡Completada! Se creó la siguiente repetición 🔁"
-        : "¡Tarea completada! 🎉"
-      : "Tarea marcada como pendiente";
-    toast.success(message, { id: `toggle-${todo.id}`, duration: 2000 });
+    toggleTodo(todo.id);
+    if (completing) {
+      // La celebración (+XP, destello, toast) la muestra XPToast.
+      celebrate();
+      if (isRecurring(todo)) {
+        toast.success("Se creó la siguiente repetición", {
+          id: `toggle-${todo.id}`,
+          duration: 2000,
+        });
+      }
+    } else {
+      toast.success("Tarea marcada como pendiente", {
+        id: `toggle-${todo.id}`,
+        duration: 2000,
+      });
+    }
   };
-
-  const barColor = PRIORITY_BAR[todo.priority] ?? "bg-muted";
 
   return (
     <>
-      <Card
-        className={`w-full mb-2 overflow-hidden transition-all duration-200 hover:shadow-md
-          ${todo.completed ? "opacity-60" : ""}
-          ${isPastDue(todo.dueDate) && !todo.completed
-            ? "border-destructive/50 bg-destructive/5 dark:bg-destructive/10"
-            : ""}
-          ${isDueSoon(todo.dueDate) && !todo.completed
-            ? "border-amber-300 bg-amber-50/50 dark:border-amber-600 dark:bg-amber-900/20"
-            : ""}
-        `}
+      <div
+        className={cn(
+          "flex flex-col rounded-[13px] border overflow-hidden transition-all duration-200",
+          todo.completed ? "task-done bg-surface-2 opacity-[.78]" : "bg-card hover:elev-1"
+        )}
+        style={{
+          borderLeft: `6px solid ${todo.completed ? "var(--input)" : priColor}`,
+        }}
       >
-        {/* Barra lateral de color por prioridad */}
-        <div className="flex">
-          <div
-            className={`w-1 shrink-0 rounded-l-lg transition-colors duration-300 ${
-              todo.completed ? "bg-muted" : barColor
-            }`}
-          />
-          <div className="flex-1">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex items-start gap-3 flex-1">
-                  <Checkbox
-                    checked={todo.completed}
-                    onCheckedChange={() => toggleTodo(todo.id)}
-                    className="mt-1"
-                    data-tour="todo-checkbox"
+        <div className="flex items-start gap-[11px] py-3 px-[13px]">
+          {/* Checkbox grande — único toggle de completado */}
+          <button
+            type="button"
+            onClick={handleToggle}
+            title={todo.completed ? "Marcar como pendiente" : "Completar"}
+            aria-label={todo.completed ? "Marcar como pendiente" : "Completar tarea"}
+            data-tour="todo-checkbox"
+            className={cn(
+              "w-[26px] h-[26px] shrink-0 mt-px cursor-pointer rounded-lg border grid place-items-center transition-all duration-150",
+              todo.completed
+                ? "bg-pos border-pos"
+                : "bg-card border-input hover:border-brand"
+            )}
+          >
+            {todo.completed && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
+          </button>
+
+          <div className="flex-1 min-w-0">
+            {/* Título + monto */}
+            <div className="flex items-baseline gap-2.5 justify-between">
+              <span className="task-title font-semibold text-[15.5px] text-ink leading-[1.3] tracking-[-0.01em]">
+                {todo.text}
+              </span>
+              {typeof todo.amount === "number" && todo.amount > 0 && (
+                <span
+                  className={cn(
+                    "font-num text-sm whitespace-nowrap",
+                    todo.completed ? "text-ink-3" : "text-ink"
+                  )}
+                  title={todo.completed ? "Gasto registrado" : "Gasto programado"}
+                >
+                  {formatCLP(todo.amount)}
+                </span>
+              )}
+            </div>
+
+            {todo.description && (
+              <p className="text-[13px] text-ink-2 mt-1 leading-snug">{todo.description}</p>
+            )}
+
+            {/* Chips: etiquetas, vencimiento, prioridad, recurrencia + acciones */}
+            <div className="flex items-center gap-[7px] mt-2 flex-wrap">
+              {(todo.tags ?? []).map((tag) => (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() => setTagFilter(tag)}
+                  className="chip py-0.5 px-2 text-[11.5px] cursor-pointer hover:opacity-80 transition-opacity"
+                  aria-label={`Filtrar por etiqueta ${tag}`}
+                >
+                  <Tag className="h-3 w-3 text-ink-3" />
+                  {tag}
+                </button>
+              ))}
+
+              {due && (
+                <span
+                  className={cn(
+                    "chip py-0.5 px-2 text-[11.5px]",
+                    due.tone === "today" && "text-brand-deep dark:text-brand bg-brand-soft border-xp-soft",
+                    due.tone === "overdue" && "text-neg bg-destructive/10 border-destructive/30"
+                  )}
+                >
+                  <Clock
+                    className={cn(
+                      "h-3 w-3",
+                      due.tone === "today"
+                        ? "text-brand"
+                        : due.tone === "overdue"
+                        ? "text-neg"
+                        : "text-ink-3"
+                    )}
                   />
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-start gap-2 flex-wrap">
-                      <span
-                        className={`text-base font-medium transition-all duration-300 ${
-                          todo.completed
-                            ? "line-through text-muted-foreground"
-                            : "text-foreground"
-                        }`}
-                      >
-                        {todo.text}
-                      </span>
-                      <div className="flex gap-1 flex-wrap">
-                        <Badge variant={getPriorityVariant(todo.priority)} className="text-xs">
-                          {getPriorityLabel(todo.priority)}
-                        </Badge>
-                        {todo.completed && (
-                          <Badge variant="secondary" className="text-xs text-green-700">
-                            <CheckCircle2 className="h-3 w-3 mr-1" />
-                            Completada
-                          </Badge>
-                        )}
-                        {isPastDue(todo.dueDate) && !todo.completed && (
-                          <Badge variant="destructive" className="text-xs">
-                            <AlertCircle className="h-3 w-3 mr-1" />
-                            Vencida
-                          </Badge>
-                        )}
-                        {isDueSoon(todo.dueDate) && !todo.completed && (
-                          <Badge variant="secondary" className="text-xs text-amber-700">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Vence pronto
-                          </Badge>
-                        )}
-                        {typeof todo.amount === "number" && todo.amount > 0 && (
-                          <Badge
-                            variant="outline"
-                            className={cn(
-                              "text-xs tabular-nums gap-1",
-                              todo.completed
-                                ? "border-emerald-300 text-emerald-700 dark:border-emerald-500/40 dark:text-emerald-300"
-                                : "border-primary/40 text-primary"
-                            )}
-                            title={todo.completed ? "Gasto registrado" : "Gasto programado"}
-                          >
-                            <Wallet className="h-3 w-3" />
-                            {formatCLP(todo.amount)}
-                          </Badge>
-                        )}
-                        {isRecurring(todo) && (
-                          <Badge variant="secondary" className="text-xs gap-1">
-                            <Repeat className="h-3 w-3" />
-                            {recurrenceLabel(todo.recurrence)}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
+                  {due.label}
+                </span>
+              )}
 
-                    {todo.description && (
-                      <p className="text-sm text-muted-foreground">{todo.description}</p>
-                    )}
+              <span
+                className="inline-flex items-center gap-[5px] text-[11.5px] font-semibold"
+                style={{ color: priColor }}
+              >
+                <span
+                  className="w-2 h-2 rounded-[3px]"
+                  style={{ background: priColor }}
+                />
+                {getPriorityLabel(todo.priority)}
+              </span>
 
-                    {todo.tags && todo.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {todo.tags.map((tag) => (
-                          <button
-                            key={tag}
-                            type="button"
-                            onClick={() => setTagFilter(tag)}
-                            className={cn(
-                              "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium cursor-pointer hover:opacity-80 transition-opacity",
-                              getTagColor(tag)
-                            )}
-                            aria-label={`Filtrar por etiqueta ${tag}`}
-                          >
-                            <Tag className="h-2.5 w-2.5" />
-                            {tag}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+              {isRecurring(todo) && (
+                <span className="chip py-0.5 px-2 text-[11.5px]">
+                  <Repeat className="h-3 w-3 text-ink-3" />
+                  {recurrenceLabel(todo.recurrence)}
+                </span>
+              )}
 
-                    {/* Subtareas: progreso + checklist expandible */}
-                    {hasSubtasks(todo) && (
-                      <div className="space-y-2">
+              {/* Acciones */}
+              <span className="ml-auto inline-flex items-center gap-0.5">
+                <button
+                  type="button"
+                  onClick={() => setEditDialogOpen(true)}
+                  aria-label="Editar tarea"
+                  className="grid place-items-center h-7 w-7 rounded-lg text-ink-3 hover:bg-surface-3 hover:text-ink-2 transition-colors cursor-pointer"
+                >
+                  <Edit2 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  aria-label="Eliminar tarea"
+                  className="grid place-items-center h-7 w-7 rounded-lg text-ink-3 hover:bg-destructive/10 hover:text-neg transition-colors cursor-pointer"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </span>
+            </div>
+
+            {/* Subtareas: barra de progreso + checklist expandible */}
+            {hasSubtasks(todo) && (
+              <div className="mt-[9px]">
+                <button
+                  type="button"
+                  onClick={() => setShowSubtasks((v) => !v)}
+                  className="flex items-center gap-2 w-full text-left cursor-pointer"
+                  aria-expanded={showSubtasks}
+                >
+                  {showSubtasks ? (
+                    <ChevronDown className="h-3.5 w-3.5 text-ink-3 shrink-0" />
+                  ) : (
+                    <ChevronRight className="h-3.5 w-3.5 text-ink-3 shrink-0" />
+                  )}
+                  <Progress
+                    value={progress.pct}
+                    className="h-1.5 flex-1 bg-surface-3 [&>div]:bg-brand"
+                  />
+                  <span className="font-num text-[11.5px] text-ink-2 shrink-0">
+                    {progress.done}/{progress.total}
+                  </span>
+                </button>
+
+                {showSubtasks && (
+                  <ul className="mt-[11px] grid gap-[7px] pl-0.5">
+                    {(todo.subtasks ?? []).map((s) => (
+                      <li key={s.id}>
                         <button
                           type="button"
-                          onClick={() => setShowSubtasks((v) => !v)}
-                          className="flex items-center gap-2 w-full text-left cursor-pointer group"
-                          aria-expanded={showSubtasks}
+                          onClick={() => toggleSubtask(s.id)}
+                          className="flex items-center gap-[9px] cursor-pointer text-left w-full py-0.5"
                         >
-                          <ListChecks className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                          <Progress value={progress.pct} className="h-1.5 flex-1" />
-                          <span className="text-xs text-muted-foreground tabular-nums shrink-0">
-                            {progress.done}/{progress.total}
-                          </span>
-                          <ChevronDown
+                          <span
                             className={cn(
-                              "h-3.5 w-3.5 text-muted-foreground shrink-0 transition-transform",
-                              showSubtasks && "rotate-180"
+                              "w-[18px] h-[18px] rounded-md shrink-0 border grid place-items-center transition-colors",
+                              s.done ? "bg-pos border-pos" : "border-input bg-transparent"
                             )}
-                          />
+                          >
+                            {s.done && (
+                              <Check className="h-3 w-3 text-white" strokeWidth={3} />
+                            )}
+                          </span>
+                          <span
+                            className={cn(
+                              "text-[13px]",
+                              s.done ? "text-ink-3 line-through" : "text-ink-2"
+                            )}
+                          >
+                            {s.text}
+                          </span>
                         </button>
-
-                        {showSubtasks && (
-                          <ul className="space-y-1.5 pl-1">
-                            {(todo.subtasks ?? []).map((s) => (
-                              <li key={s.id} className="flex items-center gap-2">
-                                <Checkbox
-                                  checked={s.done}
-                                  onCheckedChange={() => toggleSubtask(s.id)}
-                                  className="shrink-0 h-3.5 w-3.5"
-                                />
-                                <span
-                                  className={cn(
-                                    "text-sm",
-                                    s.done && "line-through text-muted-foreground"
-                                  )}
-                                >
-                                  {s.text}
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                      <span>
-                        Creada:{" "}
-                        {new Date(todo.createdAt).toLocaleDateString("es-ES", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </span>
-                      {todo.dueDate && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          Vence:{" "}
-                          {new Date(todo.dueDate).toLocaleDateString("es-ES", {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
-                          })}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setEditDialogOpen(true)}
-                    className="h-8 w-8 p-0 cursor-pointer"
-                    aria-label="Editar tarea"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleDelete}
-                    className="h-8 w-8 p-0 text-destructive hover:text-destructive cursor-pointer"
-                    aria-label="Eliminar tarea"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-
-              {/* Botón explícito de completar / deshacer */}
-              <div className="mt-3 pl-8">
-                <Button
-                  variant={todo.completed ? "outline" : "default"}
-                  size="sm"
-                  onClick={handleToggle}
-                  className="gap-1.5 cursor-pointer"
-                >
-                  {todo.completed ? (
-                    <>
-                      <RotateCcw className="h-3.5 w-3.5" />
-                      Marcar como pendiente
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      Completar
-                    </>
-                  )}
-                </Button>
-              </div>
-            </CardHeader>
+            )}
           </div>
         </div>
-      </Card>
+      </div>
 
       <EditTodoDialog todo={todo} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
     </>

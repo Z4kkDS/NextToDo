@@ -1,5 +1,6 @@
 "use client";
 
+import { BadgesPanel } from "@/components/gamification/BadgesPanel";
 import { WelcomeChecklist } from "@/components/onboarding/WelcomeChecklist";
 import { CreateTodoDialog } from "@/components/todo/CreateTodoDialog";
 import { TodoFilter } from "@/components/todo/TodoFilter";
@@ -7,59 +8,65 @@ import { TodoList } from "@/components/todo/TodoList";
 import { StatsSkeleton, TodoListSkeleton } from "@/components/todo/TodoSkeleton";
 import { TodoStats } from "@/components/todo/TodoStats";
 import { TodoToolbar } from "@/components/todo/TodoToolbar";
-import { Card, CardContent } from "@/components/ui/card";
+import { BentoCard } from "@/components/ui/bento-card";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useTodo } from "@/context/TodoContext";
-import { useMemo, useState } from "react";
+import { ListChecks, Medal } from "lucide-react";
+import { useState } from "react";
 
 interface TasksViewProps {
   createOpen?: boolean;
   onCreateOpenChange?: (open: boolean) => void;
 }
 
+/** Vista de Tareas — bento grid: lista (7 col) + stats/insignias (5 col) + primeros pasos (12 col). */
 export function TasksView({ createOpen: controlledOpen, onCreateOpenChange }: TasksViewProps = {}) {
-  const { todos, loading: todosLoading } = useTodo();
+  const { loading: todosLoading } = useTodo();
   const [internalOpen, setInternalOpen] = useState(false);
   const createOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setCreateOpen = onCreateOpenChange ?? setInternalOpen;
 
-  const pendingCount = useMemo(() => todos.filter((t) => !t.completed).length, [todos]);
-
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      {/* Contenido principal */}
-      <div className="lg:col-span-3 space-y-6">
-        {!todosLoading && (
-          <p className="text-muted-foreground text-base">
-            {todos.length === 0
-              ? "Empieza añadiendo tu primera tarea."
-              : pendingCount === 0
-              ? "¡Todo al día! No tienes tareas pendientes. 🎉"
-              : `Tienes ${pendingCount} ${pendingCount === 1 ? "tarea pendiente" : "tareas pendientes"}.`}
-          </p>
-        )}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      {/* Lista de tareas — tile grande */}
+      <BentoCard className="rise lg:col-span-7 lg:row-span-2 flex flex-col min-h-0">
+        <div className="flex items-center justify-between gap-2.5 mb-3 flex-wrap">
+          <div className="flex items-center gap-[9px]">
+            <ListChecks className="h-[18px] w-[18px] text-brand" strokeWidth={1.8} />
+            <span className="font-display text-[17px] text-ink whitespace-nowrap">
+              Tareas de hoy
+            </span>
+          </div>
+          <CreateTodoDialog open={createOpen} onOpenChange={setCreateOpen} />
+        </div>
 
         {todosLoading ? (
           <TodoListSkeleton count={3} />
         ) : (
-          <Card className="shadow-sm">
-            <CardContent className="p-6 space-y-5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <TodoFilter />
-                <CreateTodoDialog open={createOpen} onOpenChange={setCreateOpen} />
-              </div>
-              <TodoToolbar />
-              <TodoList onCreateClick={() => setCreateOpen(true)} />
-            </CardContent>
-          </Card>
+          <div className="space-y-3.5">
+            <TodoFilter />
+            <TodoToolbar />
+            <TodoList onCreateClick={() => setCreateOpen(true)} />
+          </div>
         )}
-      </div>
+      </BentoCard>
 
       {/* Panel de estadísticas */}
-      <div className="lg:col-span-1">
-        <div className="sticky top-24 space-y-6">
-          <WelcomeChecklist />
-          {todosLoading ? <StatsSkeleton /> : <TodoStats />}
-        </div>
+      <BentoCard className="rise lg:col-span-5">
+        {todosLoading ? <StatsSkeleton /> : <TodoStats />}
+      </BentoCard>
+
+      {/* Insignias */}
+      <BentoCard className="rise lg:col-span-5">
+        <SectionLabel icon={Medal} accent="var(--orange)">
+          INSIGNIAS
+        </SectionLabel>
+        <BadgesPanel />
+      </BentoCard>
+
+      {/* Primeros pasos — ancho completo */}
+      <div className="lg:col-span-12">
+        <WelcomeChecklist />
       </div>
     </div>
   );

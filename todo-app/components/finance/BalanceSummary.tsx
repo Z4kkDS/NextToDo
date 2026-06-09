@@ -1,11 +1,9 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { BentoCard } from "@/components/ui/bento-card";
 import { formatCLP, totalIncome, totalSpent } from "@/lib/finance-utils";
-import { cn } from "@/lib/utils";
 import { MonthBudget } from "@/types/finance";
-import { ArrowDownCircle, ArrowUpCircle, ListChecks, PiggyBank, Wallet } from "lucide-react";
+import { ArrowDown, ArrowUp, ListChecks, Wallet } from "lucide-react";
 
 interface BalanceSummaryProps {
   budget: MonthBudget;
@@ -15,78 +13,80 @@ interface BalanceSummaryProps {
   taskPlanned?: number;
 }
 
+/** Tarjeta héroe del bento de finanzas: saldo disponible sobre gradiente naranja. */
 export function BalanceSummary({ budget, taskSpent = 0, taskPlanned = 0 }: BalanceSummaryProps) {
   const income = totalIncome(budget.incomes);
   // El gasto total incluye lo del presupuesto + lo de tareas completadas.
   const spent = totalSpent(budget.expenses) + taskSpent;
   const available = income - spent;
-  const rate = income > 0 ? Math.round((available / income) * 100) : 0;
   const spentPct = income > 0 ? Math.min(Math.round((spent / income) * 100), 100) : 0;
-  const negative = available < 0;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-      {/* Ingresos */}
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-            <ArrowUpCircle className="h-4 w-4 text-emerald-500" />
-            Ingresos del mes
-          </div>
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-            {formatCLP(income)}
-          </p>
-        </CardContent>
-      </Card>
+    <BentoCard
+      className="rise h-full relative overflow-hidden text-white"
+      style={{
+        background: "linear-gradient(150deg, #F97316, #EA6306)",
+        borderColor: "#EA6306",
+      }}
+    >
+      <div
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(120% 90% at 88% -20%, rgba(255,255,255,.22), transparent 55%)",
+        }}
+      />
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-1">
+          <Wallet className="h-[18px] w-[18px]" strokeWidth={1.8} />
+          <span className="font-display text-sm opacity-90 tracking-[.5px]">
+            SALDO DISPONIBLE
+          </span>
+        </div>
+        <div className="font-display text-4xl lg:text-[44px] leading-[1.05] mt-1.5 tracking-[-0.025em] tabular-nums">
+          {formatCLP(available)}
+        </div>
 
-      {/* Gastado */}
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-            <ArrowDownCircle className="h-4 w-4 text-rose-500" />
-            Gastado
+        <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3.5">
+          <div>
+            <div className="flex items-center gap-[5px] text-xs opacity-90">
+              <ArrowDown className="h-[13px] w-[13px]" /> Ingresos
+            </div>
+            <div className="font-num text-[17px]">{formatCLP(income)}</div>
           </div>
-          <p className="text-2xl font-bold text-rose-600 dark:text-rose-400 tabular-nums">
-            {formatCLP(spent)}
-          </p>
-          <Progress value={spentPct} className="h-1.5 mt-2" />
-          <p className="text-xs text-muted-foreground mt-1">{spentPct}% de tus ingresos</p>
-        </CardContent>
-      </Card>
-
-      {/* Saldo disponible */}
-      <Card
-        className={cn(
-          negative
-            ? "border-rose-300 bg-rose-50/50 dark:border-rose-500/30 dark:bg-rose-500/10"
-            : "border-primary/30 bg-primary/5"
-        )}
-      >
-        <CardContent className="p-5">
-          <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1">
-            <Wallet className="h-4 w-4 text-primary" />
-            Saldo disponible
-          </div>
-          <p
-            className={cn(
-              "text-2xl font-bold tabular-nums",
-              negative ? "text-rose-600 dark:text-rose-400" : "text-foreground"
-            )}
-          >
-            {formatCLP(available)}
-          </p>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-            <PiggyBank className="h-3 w-3" />
-            Tasa de ahorro: <span className="font-semibold">{rate}%</span>
+          <div>
+            <div className="flex items-center gap-[5px] text-xs opacity-90">
+              <ArrowUp className="h-[13px] w-[13px]" /> Gastos
+            </div>
+            <div className="font-num text-[17px]">{formatCLP(spent)}</div>
           </div>
           {taskPlanned > 0 && (
-            <div className="flex items-center gap-1 text-xs text-primary/80 mt-1">
-              <ListChecks className="h-3 w-3" />
-              {formatCLP(taskPlanned)} programado en tareas
+            <div>
+              <div className="flex items-center gap-[5px] text-xs opacity-90">
+                <ListChecks className="h-[13px] w-[13px]" /> En tareas
+              </div>
+              <div className="font-num text-[17px]">{formatCLP(taskPlanned)}</div>
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex justify-between text-xs opacity-90 mb-[5px]">
+            <span>Presupuesto del mes</span>
+            <span className="font-num">{spentPct}%</span>
+          </div>
+          <div
+            className="h-2.5 rounded-full overflow-hidden border"
+            style={{ background: "rgba(0,0,0,.22)", borderColor: "rgba(255,255,255,.25)" }}
+          >
+            <div
+              className="h-full rounded-full"
+              style={{ width: `${spentPct}%`, background: "#FBBF24" }}
+            />
+          </div>
+        </div>
+      </div>
+    </BentoCard>
   );
 }

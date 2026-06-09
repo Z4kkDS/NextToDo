@@ -3,6 +3,7 @@ import { ServiceWorkerRegister } from "@/components/pwa/ServiceWorkerRegister";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import { FinanceProvider } from "@/context/FinanceContext";
+import { GamificationProvider } from "@/context/GamificationContext";
 import { OnboardingProvider } from "@/context/OnboardingContext";
 import { TodoProvider } from "@/context/TodoContext";
 import type { Metadata, Viewport } from "next";
@@ -45,8 +46,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#6366f1" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f172a" },
+    { media: "(prefers-color-scheme: light)", color: "#f97316" },
+    { media: "(prefers-color-scheme: dark)", color: "#161310" },
   ],
 };
 
@@ -66,14 +67,16 @@ export default function RootLayout({
         >
           <AuthProvider>
             <TodoProvider>
-              <FinanceProvider>
-                <OnboardingProvider>
-                  {children}
-                  <OnboardingTour />
-                  <Toaster />
-                  <ServiceWorkerRegister />
-                </OnboardingProvider>
-              </FinanceProvider>
+              <GamificationProvider>
+                <FinanceProvider>
+                  <OnboardingProvider>
+                    {children}
+                    <OnboardingTour />
+                    <Toaster />
+                    <ServiceWorkerRegister />
+                  </OnboardingProvider>
+                </FinanceProvider>
+              </GamificationProvider>
             </TodoProvider>
           </AuthProvider>
         </ThemeProvider>

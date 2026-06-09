@@ -1,10 +1,13 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BentoCard } from "@/components/ui/bento-card";
+import { Progress } from "@/components/ui/progress";
+import { SectionLabel } from "@/components/ui/section-label";
 import { useFinance } from "@/context/FinanceContext";
 import { useTodo } from "@/context/TodoContext";
 import {
   formatCLP,
+  monthKey,
   projectMonthEnd,
   shiftMonth,
   totalIncome,
@@ -13,7 +16,14 @@ import {
 import { getTaskExpenses } from "@/lib/task-finance";
 import { cn } from "@/lib/utils";
 import { MonthBudget } from "@/types/finance";
-import { ArrowDown, ArrowRight, ArrowUp, TrendingUp } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowRight,
+  ArrowUp,
+  CheckCircle2,
+  Gauge,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 interface DeltaRowProps {
@@ -33,24 +43,30 @@ function DeltaRow({ label, current, previous, upIsGood, isPercent }: DeltaRowPro
   const good = flat ? null : up === upIsGood;
 
   const Icon = flat ? ArrowRight : up ? ArrowUp : ArrowDown;
-  const color = flat
-    ? "text-muted-foreground"
-    : good
-    ? "text-emerald-600 dark:text-emerald-400"
-    : "text-rose-600 dark:text-rose-400";
+  const color = flat ? "text-ink-3" : good ? "text-pos" : "text-neg";
 
   return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="text-muted-foreground">{label}</span>
+    <div className="flex items-center justify-between text-[13px]">
+      <span className="text-ink-2">{label}</span>
       <div className="flex items-center gap-2">
-        <span className="font-medium tabular-nums">{fmt(current)}</span>
-        <span className={cn("flex items-center gap-0.5 text-xs tabular-nums", color)}>
+        <span className="font-num font-medium">{fmt(current)}</span>
+        <span className={cn("flex items-center gap-0.5 text-xs font-num", color)}>
           <Icon className="h-3 w-3" />
           {fmt(Math.abs(diff))}
         </span>
       </div>
     </div>
   );
+}
+
+/** % del mes transcurrido para la clave dada (100% si es un mes pasado). */
+function monthElapsedPct(key: string): number {
+  const now = new Date();
+  const current = monthKey(now);
+  if (key < current) return 100;
+  if (key > current) return 0;
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  return Math.round((now.getDate() / daysInMonth) * 100);
 }
 
 export function MonthProjection({ budget }: { budget: MonthBudget }) {
@@ -90,73 +106,77 @@ export function MonthProjection({ budget }: { budget: MonthBudget }) {
   const curRate = curIncome > 0 ? Math.round(((curIncome - curSpent) / curIncome) * 100) : 0;
 
   const negative = projection.projectedBalance < 0;
+  const elapsed = monthElapsedPct(month);
 
   return (
-    <Card>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          Proyección de fin de mes
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Proyección */}
-        <div
-          className={cn(
-            "rounded-lg border p-4",
-            negative
-              ? "border-rose-300 bg-rose-50/50 dark:border-rose-500/30 dark:bg-rose-500/10"
-              : "border-primary/30 bg-primary/5"
-          )}
-        >
-          <p className="text-xs text-muted-foreground">
-            Si cumples tus compromisos pendientes, terminarás el mes con:
-          </p>
-          <p
-            className={cn(
-              "text-2xl font-bold tabular-nums mt-1",
-              negative ? "text-rose-600 dark:text-rose-400" : "text-foreground"
-            )}
-          >
-            {formatCLP(projection.projectedBalance)}
-          </p>
-          <div className="mt-2 space-y-1 text-xs text-muted-foreground">
-            <div className="flex justify-between">
-              <span>Gastado hasta ahora</span>
-              <span className="tabular-nums">{formatCLP(projection.spent)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Compromisos pendientes</span>
-              <span className="tabular-nums">{formatCLP(projection.committed)}</span>
-            </div>
-          </div>
-        </div>
+    <BentoCard tone="tint" className="rise h-full">
+      <SectionLabel icon={Gauge} accent="var(--orange)">
+        PROYECCIÓN FIN DE MES
+      </SectionLabel>
 
-        {/* Comparación con el mes anterior */}
-        {prevMetrics ? (
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">vs. mes anterior</p>
-            <DeltaRow label="Ingresos" current={curIncome} previous={prevMetrics.income} upIsGood />
-            <DeltaRow
-              label="Gastos"
-              current={curSpent}
-              previous={prevMetrics.spent}
-              upIsGood={false}
-            />
-            <DeltaRow
-              label="Tasa de ahorro"
-              current={curRate}
-              previous={prevMetrics.rate}
-              upIsGood
-              isPercent
-            />
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            Sin datos del mes anterior para comparar todavía.
-          </p>
+      <div
+        className={cn(
+          "font-display text-3xl leading-none tabular-nums",
+          negative ? "text-neg" : "text-ink"
         )}
-      </CardContent>
-    </Card>
+      >
+        {formatCLP(projection.projectedBalance)}
+      </div>
+      <p className="text-xs text-ink-2 mt-2 mb-3 leading-snug">
+        Saldo estimado al cierre si cumples tus compromisos pendientes.
+      </p>
+
+      <div className="flex justify-between text-[11.5px] text-ink-3 mb-[5px]">
+        <span>Mes transcurrido</span>
+        <span className="font-num">{elapsed}%</span>
+      </div>
+      <Progress value={elapsed} className="h-2 bg-surface-3 [&>div]:bg-brand" />
+
+      <div className="flex items-center gap-[7px] mt-3 py-[9px] px-[11px] bg-card border rounded-[10px]">
+        {negative ? (
+          <AlertCircle className="h-[15px] w-[15px] text-neg shrink-0" />
+        ) : (
+          <CheckCircle2 className="h-[15px] w-[15px] text-pos shrink-0" />
+        )}
+        <span className="text-xs text-ink-2">
+          {negative ? (
+            <>
+              Proyección en rojo por{" "}
+              <b className="text-neg font-num">
+                {formatCLP(Math.abs(projection.projectedBalance))}
+              </b>
+            </>
+          ) : (
+            <>
+              Dentro de presupuesto por{" "}
+              <b className="text-pos font-num">{formatCLP(projection.projectedBalance)}</b>
+            </>
+          )}
+        </span>
+      </div>
+
+      {/* Comparación con el mes anterior */}
+      {prevMetrics && (
+        <div className="mt-3.5 space-y-1.5">
+          <p className="text-[11.5px] font-semibold text-ink-3 uppercase tracking-wide">
+            vs. mes anterior
+          </p>
+          <DeltaRow label="Ingresos" current={curIncome} previous={prevMetrics.income} upIsGood />
+          <DeltaRow
+            label="Gastos"
+            current={curSpent}
+            previous={prevMetrics.spent}
+            upIsGood={false}
+          />
+          <DeltaRow
+            label="Tasa de ahorro"
+            current={curRate}
+            previous={prevMetrics.rate}
+            upIsGood
+            isPercent
+          />
+        </div>
+      )}
+    </BentoCard>
   );
 }
