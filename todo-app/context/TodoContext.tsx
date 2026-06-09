@@ -11,7 +11,7 @@ const TodoContext = createContext<TodoContextType | undefined>(undefined);
 
 export function TodoProvider({ children }: { children: ReactNode }) {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [filter, setFilter] = useState<TodoFilter>("all");
+  const [filter, setFilter] = useState<TodoFilter>("active");
   const [sort, setSort] = useState<TodoSort>("created");
   const [searchQuery, setSearchQuery] = useState("");
   const [tagFilter, setTagFilter] = useState<string | null>(null);
