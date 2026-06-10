@@ -56,6 +56,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // vuelve por el SDK. Es más fiable que signInWithRedirect en navegadores
       // que particionan cookies de terceros (el redirect perdía la sesión al
       // volver desde el dominio *.firebaseapp.com).
+      // En producción NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN debe ser el dominio
+      // propio del sitio (next.config.ts hace proxy de /__/auth hacia
+      // firebaseapp.com) para que el popup sea same-origin; si no, la
+      // partición de almacenamiento bloquea la entrega de la credencial.
       await signInWithPopup(auth, googleProvider);
       // onAuthStateChanged se encarga de actualizar el usuario.
     } catch (error) {
