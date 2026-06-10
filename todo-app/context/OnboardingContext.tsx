@@ -4,9 +4,15 @@ import { OnboardingStorage } from "@/lib/onboarding";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 
+export type OnboardingTourTab = "tasks" | "finance";
+
 interface OnboardingContextType {
   /** Indica si el tour guiado está activo en pantalla. */
   isTourOpen: boolean;
+  /** Pestaña del dashboard que el tour necesita mostrar para el paso actual. */
+  tourTab: OnboardingTourTab | null;
+  /** Solicita al dashboard mostrar una pestaña específica durante el tour. */
+  requestTourTab: (tab: OnboardingTourTab | null) => void;
   /** Inicia (o reinicia) el tour manualmente. */
   startTour: () => void;
   /** Cierra el tour y lo marca como completado para el usuario actual. */
@@ -22,12 +28,14 @@ const OnboardingContext = createContext<OnboardingContextType | undefined>(undef
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [tourTab, setTourTab] = useState<OnboardingTourTab | null>(null);
   const [filterUsed, setFilterUsed] = useState(false);
 
   // Sincronizar el estado reactivo con lo almacenado para el usuario actual.
   useEffect(() => {
     if (!user) {
       setFilterUsed(false);
+      setTourTab(null);
       return;
     }
     setFilterUsed(OnboardingStorage.hasUsedFilter(user.uid));
@@ -44,10 +52,14 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     }
   }, [user, loading]);
 
-  const startTour = () => setIsTourOpen(true);
+  const startTour = () => {
+    setTourTab(null);
+    setIsTourOpen(true);
+  };
 
   const finishTour = () => {
     setIsTourOpen(false);
+    setTourTab(null);
     if (user) {
       OnboardingStorage.markTourCompleted(user.uid);
     }
@@ -63,7 +75,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   return (
     <OnboardingContext.Provider
-      value={{ isTourOpen, startTour, finishTour, filterUsed, markFilterUsed }}
+      value={{
+        isTourOpen,
+        tourTab,
+        requestTourTab: setTourTab,
+        startTour,
+        finishTour,
+        filterUsed,
+        markFilterUsed,
+      }}
     >
       {children}
     </OnboardingContext.Provider>

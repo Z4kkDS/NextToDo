@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { useOnboarding } from "@/context/OnboardingContext";
+import type { OnboardingTourTab } from "@/context/OnboardingContext";
 import { cn } from "@/lib/utils";
 import {
   BarChart3,
@@ -22,7 +23,7 @@ interface TourStep {
   /** Valor del atributo data-tour del elemento a resaltar. Si se omite, el paso se muestra centrado. */
   selector?: string;
   /** Pestaña que debe estar visible antes de medir el elemento objetivo. */
-  tab?: "tasks" | "finance";
+  tab?: OnboardingTourTab;
   title: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -130,13 +131,8 @@ function getVisibleTourElement(selector: string): HTMLElement | null {
   );
 }
 
-function activateTourTab(tab?: TourStep["tab"]) {
-  if (!tab) return;
-  document.querySelector<HTMLElement>(`[data-tour="${tab}-tab"]`)?.click();
-}
-
 export function OnboardingTour() {
-  const { isTourOpen, finishTour } = useOnboarding();
+  const { isTourOpen, finishTour, requestTourTab } = useOnboarding();
   const [stepIndex, setStepIndex] = useState(0);
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [mounted, setMounted] = useState(false);
@@ -164,7 +160,7 @@ export function OnboardingTour() {
     if (!isTourOpen) return;
 
     const current = STEPS[stepIndex];
-    activateTourTab(current?.tab);
+    requestTourTab(current?.tab ?? null);
 
     const scrollToTarget = () => {
       const el = current?.selector ? getVisibleTourElement(current.selector) : null;
@@ -174,7 +170,7 @@ export function OnboardingTour() {
     };
 
     scrollToTarget();
-    const scrollTimer = setTimeout(scrollToTarget, 80);
+    const scrollTimers = [80, 180, 360].map((delay) => setTimeout(scrollToTarget, delay));
 
     // Medimos varias veces para captar el cambio de pestaña y el final del scroll suave.
     updatePosition();
@@ -186,14 +182,14 @@ export function OnboardingTour() {
     window.addEventListener("scroll", updatePosition, true);
 
     return () => {
-      clearTimeout(scrollTimer);
+      scrollTimers.forEach((timer) => clearTimeout(timer));
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
-  }, [isTourOpen, stepIndex, updatePosition]);
+  }, [isTourOpen, requestTourTab, stepIndex, updatePosition]);
 
   // Cerrar con la tecla Escape.
   useEffect(() => {
