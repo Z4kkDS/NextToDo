@@ -29,7 +29,7 @@ export function FinancePanel() {
   const taskExpenses = useMemo(() => getTaskExpenses(todos, month), [todos, month]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-tour="finance-panel">
       {/* Encabezado: título + selector de mes */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -60,7 +60,7 @@ export function FinancePanel() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
           {/* Saldo destacado */}
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5" data-tour="finance-balance">
             <BalanceSummary
               budget={budget}
               taskSpent={taskExpenses.spent}
@@ -69,7 +69,7 @@ export function FinancePanel() {
           </div>
 
           {/* Dona de gastos */}
-          <BentoCard className="rise lg:col-span-4">
+          <BentoCard className="rise lg:col-span-4" data-tour="finance-categories">
             <SectionLabel icon={ChartPie} accent="var(--orange)">
               GASTOS POR CATEGORÍA
             </SectionLabel>
@@ -77,12 +77,12 @@ export function FinancePanel() {
           </BentoCard>
 
           {/* Consejos con semáforo */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3" data-tour="finance-advice">
             <FinanceAdvice budget={budget} />
           </div>
 
           {/* Tendencia mensual */}
-          <BentoCard className="rise lg:col-span-5">
+          <BentoCard className="rise lg:col-span-5" data-tour="finance-trend">
             <SectionLabel icon={TrendingUp} accent="var(--pri-baja)">
               TENDENCIA MENSUAL
             </SectionLabel>
@@ -90,17 +90,17 @@ export function FinancePanel() {
           </BentoCard>
 
           {/* Proyección fin de mes */}
-          <div className="lg:col-span-3">
+          <div className="lg:col-span-3" data-tour="finance-projection">
             <MonthProjection budget={budget} />
           </div>
 
           {/* Metas de ahorro */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-4" data-tour="finance-goals">
             <SavingsGoals />
           </div>
 
           {/* Gestión: ingresos, gastos, tareas-gasto y regla 50/30/20 */}
-          <div className="lg:col-span-6 space-y-4">
+          <div className="lg:col-span-6 space-y-4" data-tour="finance-management">
             <IncomeSection />
             <ExpenseSection />
           </div>

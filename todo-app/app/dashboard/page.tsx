@@ -9,6 +9,7 @@ import { XPBar } from "@/components/gamification/XPBar";
 import { XPToast } from "@/components/gamification/XPToast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/context/AuthContext";
+import { useOnboarding } from "@/context/OnboardingContext";
 import type { User } from "firebase/auth";
 import { ListChecks, Loader2, Wallet } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -28,6 +29,7 @@ const TAB_TRIGGER_CLASS =
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
+  const { tourTab } = useOnboarding();
   const router = useRouter();
   const [tab, setTab] = useState<"tasks" | "finance">("tasks");
   const [createOpen, setCreateOpen] = useState(false);
@@ -35,6 +37,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!user && !authLoading) router.push("/login");
   }, [user, authLoading, router]);
+
+  useEffect(() => {
+    if (tourTab) setTab(tourTab);
+  }, [tourTab]);
 
   const handleNewTask = () => {
     setTab("tasks");
@@ -83,11 +89,11 @@ export default function DashboardPage() {
 
             {/* Tabs centradas (desktop) */}
             <TabsList className="order-last w-full lg:order-none lg:w-auto lg:mx-auto h-auto p-[5px] gap-1.5 bg-surface-2 border rounded-[14px]">
-              <TabsTrigger value="tasks" className={TAB_TRIGGER_CLASS}>
+              <TabsTrigger value="tasks" className={TAB_TRIGGER_CLASS} data-tour="tasks-tab">
                 <ListChecks className="h-4 w-4" />
                 Tareas
               </TabsTrigger>
-              <TabsTrigger value="finance" className={TAB_TRIGGER_CLASS}>
+              <TabsTrigger value="finance" className={TAB_TRIGGER_CLASS} data-tour="finance-tab">
                 <Wallet className="h-4 w-4" />
                 Finanzas
               </TabsTrigger>
