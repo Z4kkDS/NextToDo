@@ -111,7 +111,11 @@ export default function DashboardPage() {
           </div>
 
           <TabsContent value="tasks">
-            <TasksView createOpen={createOpen} onCreateOpenChange={setCreateOpen} />
+            <TasksView
+              createOpen={createOpen}
+              onCreateOpenChange={setCreateOpen}
+              onOpenStore={() => setTab("mascotas")}
+            />
           </TabsContent>
 
           <TabsContent value="finance">
