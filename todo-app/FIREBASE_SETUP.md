@@ -57,6 +57,37 @@ Para desplegar en Vercel:
 3. Despliega tu aplicación
 4. Agrega el dominio de Vercel a los dominios autorizados en Firebase Auth
 
+### 8. Login con Google en producción (¡importante!)
+
+Con `authDomain = tu_proyecto.firebaseapp.com`, el popup de Google corre en un
+dominio de terceros respecto a tu web. Los navegadores modernos (Chrome y
+Safari) particionan el almacenamiento entre dominios, por lo que la credencial
+nunca vuelve a la app: el login se queda colgado y la consola muestra avisos
+de `Cross-Origin-Opener-Policy policy would block the window.closed call`.
+
+La solución oficial es servir el handler de auth **desde tu propio dominio**
+([documentación de Firebase](https://firebase.google.com/docs/auth/web/redirect-best-practices)).
+`next.config.ts` ya incluye el proxy de `/__/auth` y `/__/firebase` hacia
+`tu_proyecto.firebaseapp.com`; solo falta configurar:
+
+1. **Vercel → Settings → Environment Variables** (entorno Production):
+   cambia `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` al dominio del sitio, por
+   ejemplo `tu-app.vercel.app` (sin `https://`). En desarrollo local sigue
+   usando `tu_proyecto.firebaseapp.com`.
+2. **Firebase Console → Authentication → Settings → Authorized domains**:
+   agrega el dominio del sitio (si no lo hiciste ya).
+3. **[Google Cloud Console](https://console.cloud.google.com/apis/credentials) →
+   APIs & Services → Credentials → OAuth 2.0 Client IDs →
+   "Web client (auto created by Google Service)"**:
+   - En **Authorized JavaScript origins** agrega `https://tu-app.vercel.app`
+   - En **Authorized redirect URIs** agrega
+     `https://tu-app.vercel.app/__/auth/handler`
+4. **Redeploy** en Vercel (los cambios de variables de entorno requieren un
+   nuevo deploy).
+
+Si el dominio de producción cambia (por ejemplo, agregas un dominio
+personalizado), repite los pasos 1–4 con el dominio nuevo.
+
 ## Características implementadas
 
 - ✅ Autenticación con Google
