@@ -22,6 +22,7 @@ import {
   LogOut,
   Monitor,
   Moon,
+  PawPrint,
   Plus,
   Search,
   Sun,
@@ -32,7 +33,7 @@ import { useEffect, useState } from "react";
 
 interface CommandPaletteProps {
   onNewTask: () => void;
-  onTab: (tab: "tasks" | "finance") => void;
+  onTab: (tab: "tasks" | "finance" | "mascotas") => void;
 }
 
 export function CommandPalette({ onNewTask, onTab }: CommandPaletteProps) {
@@ -106,6 +107,10 @@ export function CommandPalette({ onNewTask, onTab }: CommandPaletteProps) {
             <CommandItem onSelect={() => run(() => onTab("finance"))}>
               <Wallet />
               Ir a Finanzas
+            </CommandItem>
+            <CommandItem onSelect={() => run(() => onTab("mascotas"))}>
+              <PawPrint />
+              Ir a Mascotas
             </CommandItem>
           </CommandGroup>
 

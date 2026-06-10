@@ -261,8 +261,32 @@
   100% { transform: translateY(var(--cy, 120px)) translateX(var(--cx, 0)) rotate(var(--cr, 180deg)); opacity: 0; }
 }
 
+/* Gentle pulse for "en desarrollo / próximamente" markers */
+@keyframes devpulse {
+  0%, 100% { opacity: 0.6; }
+  50%      { opacity: 1; }
+}
+.dev-pulse { animation: devpulse 1.9s ease-in-out infinite; }
+
+/* Mascota: flotar suave en reposo (idle). Va en el contenedor exterior;
+   el brinco/squash al completar tareas anima un nodo interior aparte para
+   que nunca peleen por el mismo transform. */
+@keyframes petbob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+.pet-bob { animation: petbob 2.6s ease-in-out infinite; }
+
+/* Chispita al acariciar / completar una tarea */
+@keyframes petspark {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.6); }
+  30%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-12px) scale(1); }
+}
+.pet-spark { animation: petspark 0.7s ease-out forwards; }
+
 @media (prefers-reduced-motion: reduce) {
-  .xp-flash, .pix-pop, .rise, .hero-enter,
+  .xp-flash, .pix-pop, .rise, .hero-enter, .dev-pulse, .pet-bob, .pet-spark,
   .lh-fa, .lh-fb, .lh-fc, .lh-oa, .lh-ob {
     animation: none;
   }
@@ -311,6 +335,19 @@
   .dark .dashboard-bg {
     background-image:
       radial-gradient(ellipse 80% 50% at 50% -10%, rgba(251, 131, 52, 0.07) 0%, transparent 70%);
+  }
+
+  /* Placeholder de avatar pixel-art (mascota en diseño): tablero ajedrezado
+     que evoca el lienzo de un sprite. Se reemplaza por el avatar real luego. */
+  .sprite-slot {
+    background-color: var(--surface-2);
+    background-image:
+      linear-gradient(45deg, var(--surface-3) 25%, transparent 25%),
+      linear-gradient(-45deg, var(--surface-3) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, var(--surface-3) 75%),
+      linear-gradient(-45deg, transparent 75%, var(--surface-3) 75%);
+    background-size: 12px 12px;
+    background-position: 0 0, 0 6px, 6px -6px, -6px 0;
   }
 }
 
