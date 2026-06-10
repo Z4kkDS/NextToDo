@@ -83,11 +83,11 @@ export default function DashboardPage() {
 
             {/* Tabs centradas (desktop) */}
             <TabsList className="order-last w-full lg:order-none lg:w-auto lg:mx-auto h-auto p-[5px] gap-1.5 bg-surface-2 border rounded-[14px]">
-              <TabsTrigger value="tasks" className={TAB_TRIGGER_CLASS}>
+              <TabsTrigger value="tasks" className={TAB_TRIGGER_CLASS} data-tour="tasks-tab">
                 <ListChecks className="h-4 w-4" />
                 Tareas
               </TabsTrigger>
-              <TabsTrigger value="finance" className={TAB_TRIGGER_CLASS}>
+              <TabsTrigger value="finance" className={TAB_TRIGGER_CLASS} data-tour="finance-tab">
                 <Wallet className="h-4 w-4" />
                 Finanzas
               </TabsTrigger>

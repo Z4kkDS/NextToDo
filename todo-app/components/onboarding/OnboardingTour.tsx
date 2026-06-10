@@ -7,15 +7,22 @@ import {
   BarChart3,
   CheckCircle2,
   Filter,
+  Landmark,
+  Lightbulb,
   PartyPopper,
+  PieChart,
   PlusCircle,
   Sparkles,
+  Target,
+  Wallet,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 interface TourStep {
   /** Valor del atributo data-tour del elemento a resaltar. Si se omite, el paso se muestra centrado. */
   selector?: string;
+  /** Pestaña que debe estar visible antes de medir el elemento objetivo. */
+  tab?: "tasks" | "finance";
   title: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -26,10 +33,11 @@ const STEPS: TourStep[] = [
     icon: Sparkles,
     title: "¡Bienvenido a NexToDo! 👋",
     description:
-      "Te muestro en unos pasos cómo organizar tus tareas. Solo te tomará unos segundos.",
+      "Te muestro en unos pasos cómo organizar tus tareas y tus finanzas. Solo te tomará unos segundos.",
   },
   {
     selector: "create-todo",
+    tab: "tasks",
     icon: PlusCircle,
     title: "Crea tus tareas",
     description:
@@ -37,6 +45,7 @@ const STEPS: TourStep[] = [
   },
   {
     selector: "filters",
+    tab: "tasks",
     icon: Filter,
     title: "Filtra y enfócate",
     description:
@@ -44,6 +53,7 @@ const STEPS: TourStep[] = [
   },
   {
     selector: "todo-checkbox",
+    tab: "tasks",
     icon: CheckCircle2,
     title: "Márcalas como completadas",
     description:
@@ -51,21 +61,79 @@ const STEPS: TourStep[] = [
   },
   {
     selector: "stats",
+    tab: "tasks",
     icon: BarChart3,
     title: "Sigue tu progreso",
     description:
       "Aquí ves tu porcentaje completado, las tareas pendientes y un resumen de tu día.",
   },
   {
+    selector: "finance-tab",
+    tab: "finance",
+    icon: Wallet,
+    title: "También tienes finanzas",
+    description:
+      "Entra a la pestaña Finanzas para revisar tu presupuesto mensual junto a tus tareas.",
+  },
+  {
+    selector: "finance-balance",
+    tab: "finance",
+    icon: Landmark,
+    title: "Revisa tu saldo del mes",
+    description:
+      "Este resumen combina ingresos, gastos y montos pagados desde tareas para mostrar cuánto tienes disponible.",
+  },
+  {
+    selector: "finance-categories",
+    tab: "finance",
+    icon: PieChart,
+    title: "Entiende en qué gastas",
+    description:
+      "La dona de categorías y la tendencia mensual te ayudan a detectar patrones de gasto rápidamente.",
+  },
+  {
+    selector: "finance-advice",
+    tab: "finance",
+    icon: Lightbulb,
+    title: "Recibe consejos automáticos",
+    description:
+      "El semáforo financiero te avisa si vas bien, si conviene ajustar gastos o si puedes ahorrar más.",
+  },
+  {
+    selector: "finance-management",
+    tab: "finance",
+    icon: Target,
+    title: "Gestiona ingresos, gastos y metas",
+    description:
+      "Agrega movimientos, conecta tareas con montos, proyecta el cierre de mes y sigue tus objetivos de ahorro.",
+  },
+  {
     icon: PartyPopper,
     title: "¡Todo listo! 🚀",
     description:
-      "Ya conoces lo esencial. Crea tu primera tarea y empieza a organizar tu día con NexToDo.",
+      "Ya conoces lo esencial. Crea tu primera tarea, registra tus finanzas y organiza tu día con NexToDo.",
   },
 ];
 
 const PADDING = 8; // halo alrededor del elemento resaltado
 const GAP = 14; // separación entre el elemento y el tooltip
+
+function getVisibleTourElement(selector: string): HTMLElement | null {
+  const elements = Array.from(
+    document.querySelectorAll<HTMLElement>(`[data-tour="${selector}"]`)
+  );
+  return (
+    elements.find((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    }) ?? null
+  );
+}
+
+function activateTourTab(tab?: TourStep["tab"]) {
+  if (!tab) return;
+  document.querySelector<HTMLElement>(`[data-tour="${tab}-tab"]`)?.click();
+}
 
 export function OnboardingTour() {
   const { isTourOpen, finishTour } = useOnboarding();
@@ -88,7 +156,7 @@ export function OnboardingTour() {
       setRect(null);
       return;
     }
-    const el = document.querySelector<HTMLElement>(`[data-tour="${current.selector}"]`);
+    const el = getVisibleTourElement(current.selector);
     setRect(el ? el.getBoundingClientRect() : null);
   }, [stepIndex]);
 
@@ -96,25 +164,32 @@ export function OnboardingTour() {
     if (!isTourOpen) return;
 
     const current = STEPS[stepIndex];
-    const el = current?.selector
-      ? document.querySelector<HTMLElement>(`[data-tour="${current.selector}"]`)
-      : null;
+    activateTourTab(current?.tab);
 
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
-    }
+    const scrollToTarget = () => {
+      const el = current?.selector ? getVisibleTourElement(current.selector) : null;
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      }
+    };
 
-    // Medimos varias veces para captar el final del scroll suave.
+    scrollToTarget();
+    const scrollTimer = setTimeout(scrollToTarget, 80);
+
+    // Medimos varias veces para captar el cambio de pestaña y el final del scroll suave.
     updatePosition();
     const t1 = setTimeout(updatePosition, 150);
     const t2 = setTimeout(updatePosition, 420);
+    const t3 = setTimeout(updatePosition, 700);
 
     window.addEventListener("resize", updatePosition);
     window.addEventListener("scroll", updatePosition, true);
 
     return () => {
+      clearTimeout(scrollTimer);
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(t3);
       window.removeEventListener("resize", updatePosition);
       window.removeEventListener("scroll", updatePosition, true);
     };
