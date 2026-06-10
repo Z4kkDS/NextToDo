@@ -1,5 +1,14 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Pagination,
   PaginationContent,
@@ -10,8 +19,9 @@ import {
 } from "@/components/ui/pagination";
 import { useTodo } from "@/context/TodoContext";
 import { applyFilters, applySort } from "@/lib/todo-utils";
-import { Inbox, SearchX, Trophy } from "lucide-react";
+import { Inbox, SearchX, Trash2, Trophy } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { EmptyState } from "./EmptyState";
 import { TodoItemAnimated } from "./TodoItemAnimated";
 
@@ -39,6 +49,58 @@ function TabEmptyState({ completed }: { completed: boolean }) {
           : "No te quedan tareas activas. Buen trabajo."}
       </span>
     </div>
+  );
+}
+
+/** Botón + diálogo para eliminar todas las completadas sin perder el XP. */
+function ClearCompletedButton({ count }: { count: number }) {
+  const { clearCompleted } = useTodo();
+  const [open, setOpen] = useState(false);
+
+  const handleConfirm = async () => {
+    setOpen(false);
+    await clearCompleted();
+    toast.success(
+      `Se ${count === 1 ? "eliminó 1 tarea completada" : `eliminaron ${count} tareas completadas`}. Tu XP se conserva.`,
+      { id: "clear-completed", duration: 3000 }
+    );
+  };
+
+  return (
+    <>
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setOpen(true)}
+          className="h-7 px-2.5 text-xs text-ink-3 hover:text-destructive cursor-pointer"
+        >
+          <Trash2 className="h-3.5 w-3.5 mr-1" />
+          Limpiar completadas
+        </Button>
+      </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>¿Limpiar tareas completadas?</DialogTitle>
+            <DialogDescription>
+              Se {count === 1 ? "eliminará 1 tarea completada" : `eliminarán ${count} tareas completadas`}.
+              El XP que ganaste con ellas se conserva.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)} className="cursor-pointer">
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleConfirm} className="cursor-pointer">
+              <Trash2 className="h-4 w-4 mr-1" />
+              Eliminar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -88,6 +150,10 @@ export function TodoList({ onCreateClick }: TodoListProps) {
 
   return (
     <div className="space-y-4">
+      {filter === "completed" && !searchQuery.trim() && !tagFilter && (
+        <ClearCompletedButton count={todos.filter((t) => t.completed).length} />
+      )}
+
       <div className="space-y-2.5">
         {currentTodos.map((todo) => (
           <TodoItemAnimated key={todo.id} todo={todo} />

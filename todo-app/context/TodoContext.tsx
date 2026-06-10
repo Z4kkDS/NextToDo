@@ -1,8 +1,10 @@
 "use client";
 
+import { computeEarnedXp } from "@/lib/gamification";
 import { LocalTodoService } from "@/lib/localTodoService";
 import { buildNextOccurrence, isRecurring } from "@/lib/recurrence";
 import { TodoService } from "@/lib/todoService";
+import { LocalXpBank, XpBankService } from "@/lib/xpBank";
 import { NewTodoInput, Todo, TodoContextType, TodoFilter, TodoSort, UpdateTodoInput } from "@/types";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
@@ -90,10 +92,30 @@ export function TodoProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Conserva en el banco el XP que aportaban las tareas a eliminar, para que
+  // borrar completadas (una a una o en limpieza) no haga perder progreso.
+  const bankXpBeforeDelete = async (ids: Set<string>) => {
+    if (!user) return;
+    const earned =
+      computeEarnedXp(todos) - computeEarnedXp(todos.filter((t) => !ids.has(t.id)));
+    if (earned <= 0) return;
+
+    if ("isLocal" in user && user.isLocal) {
+      LocalXpBank.add(user.uid, earned);
+    } else {
+      await XpBankService.add(user.uid, earned);
+    }
+  };
+
   const deleteTodo = async (id: string) => {
     if (!user) return;
 
     try {
+      const todo = todos.find((t) => t.id === id);
+      if (todo?.completed) {
+        await bankXpBeforeDelete(new Set([id]));
+      }
+
       // Si es usuario local, usar LocalTodoService
       if ("isLocal" in user && user.isLocal) {
         LocalTodoService.deleteTodo(user.uid, id);
@@ -107,6 +129,27 @@ export function TodoProvider({ children }: { children: ReactNode }) {
       await TodoService.deleteTodo(id);
     } catch (error) {
       console.error("Error deleting todo:", error);
+    }
+  };
+
+  const clearCompleted = async () => {
+    if (!user) return;
+
+    const completedIds = todos.filter((t) => t.completed).map((t) => t.id);
+    if (completedIds.length === 0) return;
+
+    try {
+      await bankXpBeforeDelete(new Set(completedIds));
+
+      if ("isLocal" in user && user.isLocal) {
+        completedIds.forEach((id) => LocalTodoService.deleteTodo(user.uid, id));
+        setTodos(LocalTodoService.getTodos(user.uid));
+        return;
+      }
+
+      await Promise.all(completedIds.map((id) => TodoService.deleteTodo(id)));
+    } catch (error) {
+      console.error("Error clearing completed todos:", error);
     }
   };
 
@@ -138,6 +181,7 @@ export function TodoProvider({ children }: { children: ReactNode }) {
         toggleTodo,
         deleteTodo,
         updateTodo,
+        clearCompleted,
         filter,
         setFilter,
         sort,
