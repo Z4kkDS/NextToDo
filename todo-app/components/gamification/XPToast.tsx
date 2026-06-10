@@ -1,10 +1,10 @@
 "use client";
 
-import { XP_PER_TASK, useGamification } from "@/context/GamificationContext";
+import { useGamification } from "@/context/GamificationContext";
 import { Check } from "lucide-react";
 
 /**
- * Toast de celebración "+25 XP" al completar una tarea.
+ * Toast de celebración "+XP" al completar una tarea.
  *
  * - Vive en una capa fija a viewport con overflow hidden, así el sobre-rebote
  *   de la animación nunca agranda el área de scroll (sin rebote vertical).
@@ -12,7 +12,7 @@ import { Check } from "lucide-react";
  *   frase limpia; los elementos visuales internos van aria-hidden.
  */
 export function XPToast() {
-  const { toastVisible } = useGamification();
+  const { toastVisible, lastEarnedXp } = useGamification();
 
   if (!toastVisible) return null;
 
@@ -24,7 +24,7 @@ export function XPToast() {
           role="status"
           aria-live="polite"
           aria-atomic="true"
-          aria-label={`Tarea completada. Ganaste ${XP_PER_TASK} puntos de experiencia.`}
+          aria-label={`Tarea completada. Ganaste ${lastEarnedXp} puntos de experiencia.`}
           style={{
             background: "linear-gradient(90deg,#F08C00,#FBBF24)",
             color: "#2A1B04",
@@ -47,7 +47,7 @@ export function XPToast() {
             className="font-display text-[15px] py-[3px] px-[9px] rounded-lg leading-none whitespace-nowrap"
             style={{ background: "rgba(42,27,4,.16)" }}
           >
-            +{XP_PER_TASK} XP
+            +{lastEarnedXp} XP
           </span>
         </div>
       </div>

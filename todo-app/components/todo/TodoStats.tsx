@@ -1,7 +1,7 @@
 "use client";
 
 import { SectionLabel } from "@/components/ui/section-label";
-import { XP_PER_TASK } from "@/context/GamificationContext";
+import { xpForTodo } from "@/lib/gamification";
 import { useTodo } from "@/context/TodoContext";
 import { Todo } from "@/types";
 import { Calendar, CheckCircle2, Gauge, LucideIcon, Trophy, Zap } from "lucide-react";
@@ -68,7 +68,7 @@ export function TodoStats() {
     const completedAt = (t: Todo) => dayStart(new Date(t.updatedAt));
 
     const completed = todos.filter((t) => t.completed);
-    const doneToday = completed.filter((t) => completedAt(t) === today).length;
+    const doneTodayList = completed.filter((t) => completedAt(t) === today);
     const weekDone = completed.filter((t) => completedAt(t) >= weekAgo).length;
     const completion =
       todos.length > 0 ? Math.round((completed.length / todos.length) * 100) : 0;
@@ -82,7 +82,8 @@ export function TodoStats() {
       return completed.filter((t) => completedAt(t) === day).length;
     });
 
-    return { doneToday, xpToday: doneToday * XP_PER_TASK, weekDone, completion, week };
+    const xpToday = doneTodayList.reduce((sum, t) => sum + xpForTodo(t), 0);
+    return { doneToday: doneTodayList.length, xpToday, weekDone, completion, week };
   }, [todos]);
 
   return (
