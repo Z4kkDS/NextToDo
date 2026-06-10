@@ -93,9 +93,9 @@ export default function DashboardPage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Cluster de gamificación */}
-            <div className="flex items-center gap-3 ml-auto flex-1 lg:flex-none justify-end min-w-0">
-              <XPBar className="flex-1 lg:flex-none lg:min-w-[200px] max-w-[260px]" />
+            {/* Cluster de gamificación — fila propia en móvil para no pisar el saludo */}
+            <div className="flex items-center gap-3 w-full sm:w-auto sm:ml-auto sm:flex-1 lg:flex-none justify-end min-w-0">
+              <XPBar className="flex-1 lg:flex-none lg:min-w-[200px] max-w-none sm:max-w-[260px]" />
               <StreakChip className="shrink-0" />
               <CommandPalette onNewTask={handleNewTask} onTab={setTab} />
             </div>

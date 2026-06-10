@@ -26,7 +26,7 @@ export function XPBar({ compact = false, className }: XPBarProps) {
         {level}
       </div>
 
-      <div className={cn("flex-1", compact ? "min-w-[90px]" : "min-w-[120px]")}>
+      <div className={cn("flex-1", compact ? "min-w-[90px]" : "min-w-[90px] sm:min-w-[120px]")}>
         <div className="flex justify-between items-baseline mb-1">
           <span className="font-display text-xs text-ink-2 tracking-[.5px]">
             NIVEL {level}
