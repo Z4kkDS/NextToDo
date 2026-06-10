@@ -61,7 +61,7 @@ export function TodoFilter() {
             {label}
             <span
               className={cn(
-                "inline-grid place-items-center min-w-5 h-[19px] px-1.5 rounded-[7px] text-[11.5px] leading-none",
+                "max-[359px]:hidden inline-grid place-items-center min-w-5 h-[19px] px-1.5 rounded-[7px] text-[11.5px] leading-none",
                 isActive ? "bg-black/16 text-primary-foreground" : "bg-surface-3 text-ink-3"
               )}
             >
