@@ -11,6 +11,7 @@ import {
   NewIncomeInput,
   SavingsGoal,
 } from "@/types/finance";
+import { FirebaseError } from "firebase/app";
 import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 
@@ -20,6 +21,8 @@ interface FinanceContextType {
   budget: MonthBudget | null;
   goals: SavingsGoal[];
   loading: boolean;
+  error: string | null;
+  retry: () => void;
   addIncome: (input: NewIncomeInput) => void;
   deleteIncome: (id: string) => void;
   addExpense: (input: NewExpenseInput) => void;
@@ -42,8 +45,12 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   const [budget, setBudget] = useState<MonthBudget | null>(null);
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const isLocal = !!user && "isLocal" in user && user.isLocal;
+
+  const retry = useCallback(() => setReloadKey((k) => k + 1), []);
 
   // Cargar presupuesto del mes + metas cuando cambia el usuario o el mes.
   useEffect(() => {
@@ -54,6 +61,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     }
     let cancelled = false;
     setLoading(true);
+    setError(null);
 
     (async () => {
       try {
@@ -76,6 +84,15 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("Error loading finance:", error);
+        if (!cancelled) {
+          const denied =
+            error instanceof FirebaseError && error.code === "permission-denied";
+          setError(
+            denied
+              ? "No tienes permisos para leer tus finanzas. Verifica que las reglas de Firestore del proyecto incluyan las colecciones budgets y financeGoals."
+              : "No se pudieron cargar tus finanzas. Revisa tu conexión e inténtalo de nuevo."
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -84,7 +101,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [user, month, isLocal]);
+  }, [user, month, isLocal, reloadKey]);
 
   const persistBudget = useCallback(
     (next: MonthBudget) => {
@@ -176,6 +193,8 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
         budget,
         goals,
         loading,
+        error,
+        retry,
         addIncome,
         deleteIncome,
         addExpense,

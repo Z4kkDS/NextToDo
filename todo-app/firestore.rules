@@ -7,5 +7,22 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
       allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
     }
+
+    // Presupuestos mensuales — un documento por usuario+mes con id `${userId}_${YYYY-MM}`
+    // (ver lib/financeService.ts). Se autoriza por el id del documento y no por
+    // resource.data.userId porque la app hace `get` de documentos que aún no existen
+    // (resource == null) antes de crearlos.
+    match /budgets/{budgetId} {
+      allow read, delete: if request.auth != null
+        && budgetId.split('_')[0] == request.auth.uid;
+      allow create, update: if request.auth != null
+        && budgetId.split('_')[0] == request.auth.uid
+        && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Metas de ahorro — un documento por usuario (id: userId).
+    match /financeGoals/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }
