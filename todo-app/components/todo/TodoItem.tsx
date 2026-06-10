@@ -78,7 +78,7 @@ export function TodoItem({ todo }: TodoItemProps) {
     toggleTodo(todo.id);
     if (completing) {
       // La celebración (+XP, destello, toast) la muestra XPToast.
-      celebrate();
+      celebrate(todo);
       if (isRecurring(todo)) {
         toast.success("Se creó la siguiente repetición", {
           id: `toggle-${todo.id}`,
