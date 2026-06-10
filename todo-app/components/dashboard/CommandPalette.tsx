@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   Clock,
   HelpCircle,
-  LayoutList,
   ListTodo,
   LogOut,
   Monitor,
@@ -113,17 +112,13 @@ export function CommandPalette({ onNewTask, onTab }: CommandPaletteProps) {
           <CommandSeparator />
 
           <CommandGroup heading="Filtrar tareas">
-            <CommandItem onSelect={() => run(() => goFilter("all"))}>
-              <LayoutList />
-              Todas las tareas
-            </CommandItem>
             <CommandItem onSelect={() => run(() => goFilter("active"))}>
               <Clock />
-              Pendientes
+              Tareas activas
             </CommandItem>
             <CommandItem onSelect={() => run(() => goFilter("completed"))}>
               <CheckCircle2 />
-              Completadas
+              Tareas completadas
             </CommandItem>
           </CommandGroup>
 
