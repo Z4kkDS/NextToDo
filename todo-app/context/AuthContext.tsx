@@ -2,6 +2,7 @@
 
 import { auth, googleProvider } from "@/lib/firebase";
 import { LocalTodoService } from "@/lib/localTodoService";
+import { LocalXpBank } from "@/lib/xpBank";
 import { FirebaseError } from "firebase/app";
 import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
@@ -108,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Si es usuario local, limpiar sus datos
       if (user && (user as LocalUser).isLocal) {
         LocalTodoService.clearLocalData(user.uid);
+        LocalXpBank.clear(user.uid);
         localStorage.removeItem("localUser");
         setUser(null);
         return;

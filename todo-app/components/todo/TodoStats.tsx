@@ -1,7 +1,7 @@
 "use client";
 
 import { SectionLabel } from "@/components/ui/section-label";
-import { xpForTodo } from "@/lib/gamification";
+import { effectiveXp } from "@/lib/gamification";
 import { useTodo } from "@/context/TodoContext";
 import { Todo } from "@/types";
 import { Calendar, CheckCircle2, Gauge, LucideIcon, Trophy, Zap } from "lucide-react";
@@ -82,7 +82,10 @@ export function TodoStats() {
       return completed.filter((t) => completedAt(t) === day).length;
     });
 
-    const xpToday = doneTodayList.reduce((sum, t) => sum + xpForTodo(t), 0);
+    // XP efectivo: respeta los rendimientos decrecientes por orden de completado.
+    const xpToday = doneTodayList
+      .sort((a, b) => new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime())
+      .reduce((sum, t, i) => sum + effectiveXp(t, i), 0);
     return { doneToday: doneTodayList.length, xpToday, weekDone, completion, week };
   }, [todos]);
 

@@ -66,6 +66,8 @@ export interface TodoContextType {
   toggleTodo: (id: string) => void;
   deleteTodo: (id: string) => void;
   updateTodo: (id: string, todo: Partial<UpdateTodoInput>) => void;
+  /** Elimina todas las completadas conservando su XP en el banco. */
+  clearCompleted: () => Promise<void>;
   filter: TodoFilter;
   setFilter: (filter: TodoFilter) => void;
   sort: TodoSort;
